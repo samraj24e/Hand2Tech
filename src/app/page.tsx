@@ -146,7 +146,7 @@ export default function AuthPage() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-zinc-950">
+      <div className="flex min-h-screen items-center justify-center bg-slate-50">
         <FontAwesomeIcon icon={faSpinner} className="animate-spin text-4xl text-blue-500" />
       </div>
     );
@@ -154,18 +154,18 @@ export default function AuthPage() {
 
   if (!user) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-zinc-950 p-4 relative overflow-hidden font-sans">
+      <div className="flex min-h-screen items-center justify-center bg-slate-50 p-4 relative overflow-hidden font-sans">
         {/* Animated abstract background blobs */}
         <div className="absolute top-0 left-[-10%] w-96 h-96 bg-blue-600/40 rounded-full blur-3xl animate-blob"></div>
         <div className="absolute top-0 right-[-10%] w-96 h-96 bg-emerald-600/30 rounded-full blur-3xl animate-blob animation-delay-2000"></div>
         <div className="absolute -bottom-8 left-20 w-96 h-96 bg-indigo-600/30 rounded-full blur-3xl animate-blob animation-delay-4000"></div>
 
-        <Card className="w-full max-w-md glass-panel-heavy text-zinc-100 relative z-10 transition-transform duration-500 hover:scale-[1.01]">
+        <Card className="w-full max-w-md glass-panel-heavy text-slate-900 relative z-10 transition-transform duration-500 hover:scale-[1.01]">
           <CardHeader className="text-center space-y-4 pt-8">
             <CardTitle className="text-5xl font-extrabold tracking-tight bg-gradient-to-r from-blue-400 via-emerald-400 to-indigo-400 bg-clip-text text-transparent text-glow">
               Hand2Tech
             </CardTitle>
-            <CardDescription className="text-zinc-400 text-lg font-medium">
+            <CardDescription className="text-slate-600 text-lg font-medium">
               Connect to build the future.
             </CardDescription>
           </CardHeader>
@@ -177,7 +177,7 @@ export default function AuthPage() {
                   placeholder="Email address" 
                   value={email}
                   onChange={e => setEmail(e.target.value)}
-                  className="bg-zinc-950/50 border-zinc-700/50 py-6 text-md focus-visible:ring-emerald-500 focus-visible:border-emerald-500 transition-all rounded-xl"
+                  className="bg-slate-50/50 border-slate-300/50 py-6 text-md focus-visible:ring-emerald-500 focus-visible:border-emerald-500 transition-all rounded-xl"
                   required
                 />
               </div>
@@ -187,7 +187,7 @@ export default function AuthPage() {
                   placeholder="Password" 
                   value={password}
                   onChange={e => setPassword(e.target.value)}
-                  className="bg-zinc-950/50 border-zinc-700/50 py-6 text-md focus-visible:ring-blue-500 focus-visible:border-blue-500 transition-all rounded-xl"
+                  className="bg-slate-50/50 border-slate-300/50 py-6 text-md focus-visible:ring-blue-500 focus-visible:border-blue-500 transition-all rounded-xl"
                   required
                 />
               </div>
@@ -209,10 +209,10 @@ export default function AuthPage() {
 
             <div className="relative my-6">
               <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t border-zinc-700/50"></span>
+                <span className="w-full border-t border-slate-300/50"></span>
               </div>
               <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-zinc-900/40 px-2 text-zinc-400 backdrop-blur-xl">Or</span>
+                <span className="bg-white/40 px-2 text-slate-600 backdrop-blur-xl">Or</span>
               </div>
             </div>
 
@@ -220,7 +220,7 @@ export default function AuthPage() {
               type="button" 
               onClick={handleGoogleAuth}
               disabled={isSigningIn}
-              className="relative overflow-hidden w-full py-7 text-lg bg-zinc-900 border border-zinc-700 hover:bg-zinc-800 text-zinc-100 font-bold transition-all rounded-xl shadow-lg mt-2 group"
+              className="relative overflow-hidden w-full py-7 text-lg bg-white border border-slate-300 hover:bg-slate-100 text-slate-900 font-bold transition-all rounded-xl shadow-lg mt-2 group"
             >
               <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/5 to-transparent translate-x-[-100%] group-hover:animate-[shimmer_1.5s_infinite]"></div>
               <span className="relative z-10 flex items-center justify-center gap-3">
@@ -235,15 +235,15 @@ export default function AuthPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-950 p-4 relative overflow-hidden font-sans">
+    <div className="flex min-h-screen items-center justify-center bg-slate-50 p-4 relative overflow-hidden font-sans">
        {/* Background */}
        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-3xl h-[500px] bg-gradient-to-tr from-blue-600/30 to-emerald-600/30 rounded-full blur-[120px] -z-10 animate-blob" />
        
-      <Card className="w-full max-w-xl glass-panel-heavy text-zinc-100 relative z-10 transition-all duration-500 overflow-hidden">
+      <Card className="w-full max-w-xl glass-panel-heavy text-slate-900 relative z-10 transition-all duration-500 overflow-hidden">
         <div className="h-1.5 w-full bg-gradient-to-r from-blue-500 via-emerald-400 to-indigo-500 animate-[shimmer_3s_infinite]" />
         <CardHeader className="text-center pt-8">
           <CardTitle className="text-4xl font-extrabold text-glow">Complete Your Profile</CardTitle>
-          <CardDescription className="text-zinc-400 text-md mt-2">
+          <CardDescription className="text-slate-600 text-md mt-2">
             {onboardingStep === 1 ? "How will you use Hand2Tech?" : "Show us your skills"}
           </CardDescription>
         </CardHeader>
@@ -253,28 +253,28 @@ export default function AuthPage() {
               <button
                 type="button"
                 onClick={() => { setRole("student"); setOnboardingStep(2); }}
-                className="flex flex-col items-center justify-center gap-4 p-8 rounded-2xl border border-zinc-700/50 bg-zinc-900/40 hover:bg-zinc-800/60 hover:border-blue-500/80 transition-all group shadow-lg hover:shadow-[0_0_20px_rgba(59,130,246,0.3)] hover:-translate-y-1"
+                className="flex flex-col items-center justify-center gap-4 p-8 rounded-2xl border border-slate-300/50 bg-white/40 hover:bg-slate-100/60 hover:border-blue-500/80 transition-all group shadow-lg hover:shadow-[0_0_20px_rgba(59,130,246,0.3)] hover:-translate-y-1"
               >
                 <div className="w-20 h-20 rounded-full bg-blue-500/10 flex items-center justify-center group-hover:scale-110 group-hover:bg-blue-500/20 transition-all shadow-[inset_0_0_20px_rgba(59,130,246,0.1)]">
                   <FontAwesomeIcon icon={faLaptopCode} className="text-4xl text-blue-400 drop-shadow-[0_0_10px_rgba(59,130,246,0.8)]" />
                 </div>
                 <div className="text-center mt-2">
-                  <h3 className="font-bold text-xl text-zinc-100 group-hover:text-blue-300 transition-colors">Tech Innovator</h3>
-                  <p className="text-sm text-zinc-400 mt-2">I code, design, or engineer digital solutions.</p>
+                  <h3 className="font-bold text-xl text-slate-900 group-hover:text-blue-300 transition-colors">Tech Innovator</h3>
+                  <p className="text-sm text-slate-600 mt-2">I code, design, or engineer digital solutions.</p>
                 </div>
               </button>
               
               <button
                 type="button"
                 onClick={() => { setRole("laborer"); setOnboardingStep(2); }}
-                className="flex flex-col items-center justify-center gap-4 p-8 rounded-2xl border border-zinc-700/50 bg-zinc-900/40 hover:bg-zinc-800/60 hover:border-emerald-500/80 transition-all group shadow-lg hover:shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:-translate-y-1"
+                className="flex flex-col items-center justify-center gap-4 p-8 rounded-2xl border border-slate-300/50 bg-white/40 hover:bg-slate-100/60 hover:border-emerald-500/80 transition-all group shadow-lg hover:shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:-translate-y-1"
               >
                 <div className="w-20 h-20 rounded-full bg-emerald-500/10 flex items-center justify-center group-hover:scale-110 group-hover:bg-emerald-500/20 transition-all shadow-[inset_0_0_20px_rgba(16,185,129,0.1)]">
                   <FontAwesomeIcon icon={faHammer} className="text-4xl text-emerald-400 drop-shadow-[0_0_10px_rgba(16,185,129,0.8)]" />
                 </div>
                 <div className="text-center mt-2">
-                  <h3 className="font-bold text-xl text-zinc-100 group-hover:text-emerald-300 transition-colors">Skilled Craftsman</h3>
-                  <p className="text-sm text-zinc-400 mt-2">I build, weld, fabricate, or do physical labor.</p>
+                  <h3 className="font-bold text-xl text-slate-900 group-hover:text-emerald-300 transition-colors">Skilled Craftsman</h3>
+                  <p className="text-sm text-slate-600 mt-2">I build, weld, fabricate, or do physical labor.</p>
                 </div>
               </button>
             </div>
@@ -286,12 +286,12 @@ export default function AuthPage() {
                 <h3 className="text-2xl font-bold mb-3 text-glow">
                   Upload your {role === 'student' ? 'Resume' : 'Trade Certificate'}
                 </h3>
-                <p className="text-zinc-400 text-sm leading-relaxed">
+                <p className="text-slate-600 text-sm leading-relaxed">
                   Our AI will instantly analyze your document to highlight your top skills and match you with the perfect projects.
                 </p>
               </div>
 
-              <label className="relative flex flex-col items-center justify-center w-full h-56 border-2 border-dashed rounded-2xl border-zinc-700/60 bg-zinc-900/30 hover:bg-zinc-800/50 hover:border-emerald-500/60 transition-all cursor-pointer group shadow-inner">
+              <label className="relative flex flex-col items-center justify-center w-full h-56 border-2 border-dashed rounded-2xl border-slate-300/60 bg-white/30 hover:bg-slate-100/50 hover:border-emerald-500/60 transition-all cursor-pointer group shadow-inner">
                 <div className="flex flex-col items-center justify-center pt-5 pb-6">
                   {isProcessing ? (
                      <div className="relative">
@@ -299,16 +299,16 @@ export default function AuthPage() {
                        <div className="absolute inset-0 bg-emerald-500/20 blur-xl rounded-full"></div>
                      </div>
                   ) : (
-                    <div className="w-16 h-16 bg-zinc-800/80 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 group-hover:bg-emerald-500/10 transition-all shadow-lg border border-zinc-700/50">
-                      <svg className="w-8 h-8 text-zinc-400 group-hover:text-emerald-400 transition-colors" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
+                    <div className="w-16 h-16 bg-slate-100/80 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 group-hover:bg-emerald-500/10 transition-all shadow-lg border border-slate-300/50">
+                      <svg className="w-8 h-8 text-slate-600 group-hover:text-emerald-400 transition-colors" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
                           <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
                       </svg>
                     </div>
                   )}
-                  <p className="mb-2 text-md text-zinc-400 text-center">
-                    <span className="font-bold text-zinc-200 group-hover:text-emerald-300 transition-colors">Click to upload</span> or drag and drop
+                  <p className="mb-2 text-md text-slate-600 text-center">
+                    <span className="font-bold text-slate-800 group-hover:text-emerald-300 transition-colors">Click to upload</span> or drag and drop
                   </p>
-                  <p className="text-xs text-zinc-500 font-medium">PDF, DOCX, or PNG (MAX. 5MB)</p>
+                  <p className="text-xs text-slate-500 font-medium">PDF, DOCX, or PNG (MAX. 5MB)</p>
                 </div>
                 <Input 
                   id="dropzone-file" 

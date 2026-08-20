@@ -137,23 +137,23 @@
     background: transparent;
   }
   ::-webkit-scrollbar-thumb {
-    background: oklch(1 0 0 / 15%);
+    background: rgba(0,0,0,0.15);
     border-radius: 4px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: oklch(1 0 0 / 30%);
+    background: rgba(0,0,0,0.30);
   }
 }
 
 @layer utilities {
   .glass-panel {
-    @apply bg-zinc-900/40 backdrop-blur-xl border border-zinc-700/50 shadow-2xl;
+    @apply bg-white/70 backdrop-blur-xl border border-white/50 shadow-xl;
   }
   .glass-panel-heavy {
-    @apply bg-zinc-950/60 backdrop-blur-2xl border border-zinc-800/80 shadow-[0_8px_32px_rgba(0,0,0,0.5)];
+    @apply bg-white/90 backdrop-blur-2xl border border-slate-200/80 shadow-[0_8px_32px_rgba(0,0,0,0.05)];
   }
   .text-glow {
-    text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+    text-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
   }
   .animate-blob {
     animation: blob 10s infinite;

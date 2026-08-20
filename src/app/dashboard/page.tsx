@@ -174,7 +174,7 @@ export default function Dashboard() {
   };
 
   if (loading) return (
-    <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center">
       <FontAwesomeIcon icon={faSpinner} className="animate-spin text-blue-500 text-4xl" />
     </div>
   );
@@ -182,7 +182,7 @@ export default function Dashboard() {
   const isLaborer = userProfile?.role === 'laborer';
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100 font-sans relative">
+    <div className="min-h-screen bg-slate-50 text-slate-900 font-sans relative">
       {/* Dynamic Background */}
       <div className="fixed top-0 left-0 w-full h-full overflow-hidden pointer-events-none -z-10">
         <div className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] bg-emerald-600/20 rounded-full blur-[120px] animate-blob" />
@@ -191,24 +191,24 @@ export default function Dashboard() {
 
       {/* Floating Navbar */}
       <div className="sticky top-4 z-40 px-4 max-w-7xl mx-auto">
-        <nav className="glass-panel-heavy rounded-2xl flex items-center justify-between px-6 py-4 shadow-[0_10px_40px_rgba(0,0,0,0.5)] border border-zinc-700/50">
+        <nav className="glass-panel-heavy rounded-2xl flex items-center justify-between px-6 py-4 shadow-[0_10px_40px_rgba(0,0,0,0.5)] border border-slate-300/50">
           <div className="text-2xl font-extrabold bg-gradient-to-r from-blue-400 via-emerald-400 to-indigo-400 bg-clip-text text-transparent text-glow tracking-tight cursor-default">
             Hand2Tech
           </div>
           <div className="flex items-center gap-6">
             <DropdownMenu>
-              <DropdownMenuTrigger className="relative p-2.5 bg-zinc-800/50 hover:bg-zinc-700/80 rounded-xl transition-all shadow-inner hover:shadow-[0_0_15px_rgba(59,130,246,0.3)]">
-                  <FontAwesomeIcon icon={faBell} className="text-zinc-300 text-lg" />
+              <DropdownMenuTrigger className="relative p-2.5 bg-slate-100/50 hover:bg-slate-200/80 rounded-xl transition-all shadow-inner hover:shadow-[0_0_15px_rgba(59,130,246,0.3)]">
+                  <FontAwesomeIcon icon={faBell} className="text-slate-700 text-lg" />
                   {pendingRequests.length > 0 && (
                     <span className="absolute top-1 right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-zinc-900 animate-pulse" />
                   )}
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-80 glass-panel border-zinc-700 text-zinc-100 rounded-xl shadow-2xl p-2">
+              <DropdownMenuContent align="end" className="w-80 glass-panel border-slate-300 text-slate-900 rounded-xl shadow-2xl p-2">
                 {pendingRequests.length === 0 ? (
-                  <div className="p-6 text-center text-zinc-500">No new notifications</div>
+                  <div className="p-6 text-center text-slate-500">No new notifications</div>
                 ) : (
                   pendingRequests.map(req => (
-                    <DropdownMenuItem key={req.id} className="p-4 flex flex-col items-start gap-3 focus:bg-zinc-800/80 rounded-lg cursor-default">
+                    <DropdownMenuItem key={req.id} className="p-4 flex flex-col items-start gap-3 focus:bg-slate-100/80 rounded-lg cursor-default">
                       <div className="text-sm"><span className="font-bold text-blue-400">{req.requester.name}</span> wants to connect on <span className="font-semibold text-emerald-400">{req.project.title}</span></div>
                       <div className="flex gap-3 w-full mt-1">
                         <Button size="sm" onClick={(e) => { e.stopPropagation(); handleAccept(req.id); }} className="flex-1 bg-emerald-600/90 hover:bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.2)]"><FontAwesomeIcon icon={faCheck}/></Button>
@@ -220,11 +220,11 @@ export default function Dashboard() {
               </DropdownMenuContent>
             </DropdownMenu>
 
-            <Button variant="ghost" onClick={() => router.push('/profile')} className="p-2.5 bg-zinc-800/50 hover:bg-zinc-700/80 rounded-xl transition-all shadow-inner text-zinc-300" title="Edit Profile">
+            <Button variant="ghost" onClick={() => router.push('/profile')} className="p-2.5 bg-slate-100/50 hover:bg-slate-200/80 rounded-xl transition-all shadow-inner text-slate-700" title="Edit Profile">
               <FontAwesomeIcon icon={faUserCircle} className="text-xl" />
             </Button>
 
-            <Button variant="outline" className="border-zinc-700/50 hover:bg-zinc-800 hover:text-white rounded-xl text-sm font-medium" onClick={async () => { await supabase.auth.signOut(); router.push('/'); }}>
+            <Button variant="outline" className="border-slate-300/50 hover:bg-slate-100 hover:text-blue-700 rounded-xl text-sm font-medium" onClick={async () => { await supabase.auth.signOut(); router.push('/'); }}>
               Sign Out
             </Button>
           </div>
@@ -236,18 +236,18 @@ export default function Dashboard() {
         
         {/* Left Column: Project Creation & Active Chats */}
         <div className={`lg:col-span-5 space-y-10 ${isLaborer ? 'hidden lg:block' : 'block'}`}>
-          <Card className="glass-panel overflow-hidden border-zinc-700/50 transition-all hover:shadow-[0_0_30px_rgba(59,130,246,0.15)]">
+          <Card className="glass-panel overflow-hidden border-slate-300/50 transition-all hover:shadow-[0_0_30px_rgba(59,130,246,0.15)]">
             <div className="h-1.5 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 animate-[shimmer_3s_infinite]" />
             <CardHeader className="pt-8">
-              <CardTitle className="text-2xl font-bold text-zinc-100">Create a Project</CardTitle>
-              <CardDescription className="text-zinc-400 mt-2">Describe what you need built, and our AI will instantly extract the required skills.</CardDescription>
+              <CardTitle className="text-2xl font-bold text-slate-900">Create a Project</CardTitle>
+              <CardDescription className="text-slate-600 mt-2">Describe what you need built, and our AI will instantly extract the required skills.</CardDescription>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleCreateProject} className="space-y-5">
                 <div className="relative group">
                   <Input 
                     placeholder="Project Title (e.g., Custom Drone Chassis)" 
-                    className="bg-zinc-950/50 border-zinc-700/50 py-6 rounded-xl focus-visible:ring-blue-500 transition-all"
+                    className="bg-slate-50/50 border-slate-300/50 py-6 rounded-xl focus-visible:ring-blue-500 transition-all"
                     value={newProjectTitle}
                     onChange={e => setNewProjectTitle(e.target.value)}
                   />
@@ -255,7 +255,7 @@ export default function Dashboard() {
                 <div className="relative group">
                   <Textarea 
                     placeholder="Describe the physical labor or tech integration required..." 
-                    className="bg-zinc-950/50 border-zinc-700/50 min-h-[140px] rounded-xl focus-visible:ring-indigo-500 transition-all resize-none p-4"
+                    className="bg-slate-50/50 border-slate-300/50 min-h-[140px] rounded-xl focus-visible:ring-indigo-500 transition-all resize-none p-4"
                     value={newProjectDesc}
                     onChange={e => setNewProjectDesc(e.target.value)}
                   />
@@ -270,23 +270,23 @@ export default function Dashboard() {
           {/* My Projects */}
           {projects.length > 0 && (
             <div className="space-y-4">
-              <h3 className="text-xl font-bold text-zinc-100 flex items-center gap-2">
+              <h3 className="text-xl font-bold text-slate-900 flex items-center gap-2">
                 My Projects
               </h3>
               {projects.map(project => (
-                <Card key={project.id} className="glass-panel border-zinc-700/50 hover:border-blue-500/30 transition-all">
+                <Card key={project.id} className="glass-panel border-slate-300/50 hover:border-blue-500/30 transition-all">
                   <CardContent className="p-5">
                     <div className="flex justify-between items-start">
                       <h4 className="font-bold text-lg text-blue-400">{project.title}</h4>
-                      <span className="text-xs px-2 py-1 rounded-md bg-zinc-800 text-zinc-400 uppercase tracking-wider">{project.status}</span>
+                      <span className="text-xs px-2 py-1 rounded-md bg-slate-100 text-slate-600 uppercase tracking-wider">{project.status}</span>
                     </div>
-                    <p className="text-sm text-zinc-300 mt-2 line-clamp-2">{project.description}</p>
+                    <p className="text-sm text-slate-700 mt-2 line-clamp-2">{project.description}</p>
                     
                     {/* BOM Estimate */}
                     {project.bom_estimate && Array.isArray(project.bom_estimate) && project.bom_estimate.length > 0 && (
-                      <div className="mt-4 pt-4 border-t border-zinc-800/80">
+                      <div className="mt-4 pt-4 border-t border-slate-200/80">
                         <p className="text-xs font-semibold text-yellow-500/80 uppercase tracking-wider mb-2">Scrap-to-Proto BOM</p>
-                        <ul className="list-disc list-inside text-sm text-zinc-400 space-y-1">
+                        <ul className="list-disc list-inside text-sm text-slate-600 space-y-1">
                           {project.bom_estimate.map((item: string, idx: number) => (
                             <li key={idx}>{item}</li>
                           ))}
@@ -301,7 +301,7 @@ export default function Dashboard() {
 
           {/* Active Chats */}
           {activeConnections.length > 0 && (
-            <Card className="glass-panel border-zinc-700/50">
+            <Card className="glass-panel border-slate-300/50">
               <CardHeader className="pb-4">
                 <CardTitle className="text-xl flex items-center gap-3">
                   <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
@@ -310,15 +310,15 @@ export default function Dashboard() {
               </CardHeader>
               <CardContent className="space-y-4">
                 {activeConnections.map(conn => (
-                  <div key={conn.id} className="p-5 rounded-2xl bg-zinc-950/40 border border-zinc-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:border-zinc-600 transition-colors">
+                  <div key={conn.id} className="p-5 rounded-2xl bg-slate-50/40 border border-slate-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:border-zinc-600 transition-colors">
                     <div>
                       <div className="font-bold text-emerald-400 tracking-wide">{conn.project.title}</div>
-                      <div className="text-sm text-zinc-400 mt-1 flex items-center gap-2">
-                        <FontAwesomeIcon icon={faUserCircle} className="text-zinc-500" />
+                      <div className="text-sm text-slate-600 mt-1 flex items-center gap-2">
+                        <FontAwesomeIcon icon={faUserCircle} className="text-slate-500" />
                         {conn.requester_id === user.id ? conn.owner.name : conn.requester.name}
                       </div>
                     </div>
-                    <Button variant="outline" className="rounded-xl border-zinc-700 hover:bg-zinc-800 hover:text-white shadow-inner bg-zinc-900/50" onClick={() => setActiveChatConnection(conn)}>
+                    <Button variant="outline" className="rounded-xl border-slate-300 hover:bg-slate-100 hover:text-blue-700 shadow-inner bg-white/50" onClick={() => setActiveChatConnection(conn)}>
                       <FontAwesomeIcon icon={faComments} className="mr-2" /> Chat
                     </Button>
                   </div>
@@ -334,22 +334,22 @@ export default function Dashboard() {
             <h2 className="text-3xl font-bold tracking-tight text-glow">
               {isLaborer ? "Recommended Projects & People" : "Recommended Innovators"}
             </h2>
-            <div className="w-12 h-12 rounded-full bg-zinc-800/50 flex items-center justify-center border border-zinc-700/50 backdrop-blur-sm">
+            <div className="w-12 h-12 rounded-full bg-slate-100/50 flex items-center justify-center border border-slate-300/50 backdrop-blur-sm">
               <FontAwesomeIcon icon={faUsers} className="text-emerald-400 text-xl drop-shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {recommendedInnovators.map(innovator => (
-              <Card key={innovator.id} className="glass-panel border-zinc-700/40 hover:border-emerald-500/50 transition-all duration-300 group cursor-default hover:-translate-y-1 hover:shadow-[0_15px_30px_rgba(0,0,0,0.4)]">
+              <Card key={innovator.id} className="glass-panel border-slate-300/40 hover:border-emerald-500/50 transition-all duration-300 group cursor-default hover:-translate-y-1 hover:shadow-[0_15px_30px_rgba(0,0,0,0.4)]">
                 <CardContent className="p-7">
                   <div className="flex justify-between items-start mb-5">
                     <div>
-                      <h3 className="font-bold text-xl text-zinc-100 group-hover:text-emerald-400 transition-colors drop-shadow-md">{innovator.name}</h3>
+                      <h3 className="font-bold text-xl text-slate-900 group-hover:text-emerald-400 transition-colors drop-shadow-md">{innovator.name}</h3>
                       <p className="text-sm font-medium text-emerald-500/80 capitalize tracking-wider mt-1">{innovator.role}</p>
                       <p className="text-sm font-medium text-yellow-500/80 mt-1">★ {Number(innovator.rating || 5.0).toFixed(1)}</p>
                       {innovator.location && (
-                        <p className="text-xs text-zinc-400 mt-2 flex items-center gap-1.5"><FontAwesomeIcon icon={faMapMarkerAlt} className="text-zinc-500" />{innovator.location}</p>
+                        <p className="text-xs text-slate-600 mt-2 flex items-center gap-1.5"><FontAwesomeIcon icon={faMapMarkerAlt} className="text-slate-500" />{innovator.location}</p>
                       )}
                     </div>
                     <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-blue-500/20 flex items-center justify-center border border-emerald-500/20 shadow-inner">
@@ -358,12 +358,12 @@ export default function Dashboard() {
                   </div>
 
                   {innovator.bio && (
-                    <p className="text-sm text-zinc-300 mb-6 line-clamp-2 leading-relaxed">{innovator.bio}</p>
+                    <p className="text-sm text-slate-700 mb-6 line-clamp-2 leading-relaxed">{innovator.bio}</p>
                   )}
                   
                   <div className="flex flex-wrap gap-2 mb-8">
                     {(innovator.skills || []).map((skill: string, idx: number) => (
-                      <span key={idx} className="px-3 py-1.5 rounded-lg bg-zinc-900/80 text-xs font-semibold text-zinc-300 border border-zinc-700/80 shadow-[inset_0_1px_2px_rgba(255,255,255,0.05)]">
+                      <span key={idx} className="px-3 py-1.5 rounded-lg bg-white/80 text-xs font-semibold text-slate-700 border border-slate-300/80 shadow-[inset_0_1px_2px_rgba(255,255,255,0.05)]">
                         {skill}
                       </span>
                     ))}
@@ -372,14 +372,14 @@ export default function Dashboard() {
                   <div className="flex flex-col gap-2">
                     <Button 
                       onClick={() => handleRequestConnect(innovator.id)}
-                      className="w-full bg-zinc-800/80 hover:bg-emerald-600 text-zinc-100 transition-all duration-300 border border-zinc-700 group-hover:border-emerald-500/50 group-hover:shadow-[0_0_20px_rgba(16,185,129,0.3)] rounded-xl py-6"
+                      className="w-full bg-slate-100/80 hover:bg-emerald-600 text-slate-900 transition-all duration-300 border border-slate-300 group-hover:border-emerald-500/50 group-hover:shadow-[0_0_20px_rgba(16,185,129,0.3)] rounded-xl py-6"
                     >
                       <FontAwesomeIcon icon={faPlus} className="mr-2" /> Request to Connect
                     </Button>
                     <Button 
                       variant="outline"
                       onClick={() => triggerWhatsAppNotification(innovator.phone)}
-                      className="w-full bg-green-600/20 hover:bg-green-600 text-green-400 hover:text-white transition-all duration-300 border border-green-700/50 rounded-xl py-6"
+                      className="w-full bg-green-600/20 hover:bg-green-600 text-green-400 hover:text-blue-700 transition-all duration-300 border border-green-700/50 rounded-xl py-6"
                     >
                       Post Project & Notify Laborer
                     </Button>
@@ -389,10 +389,10 @@ export default function Dashboard() {
             ))}
             
             {recommendedInnovators.length === 0 && (
-              <div className="col-span-full py-16 text-center text-zinc-400 glass-panel rounded-2xl border-dashed border-2 border-zinc-700/50">
-                <FontAwesomeIcon icon={faUsers} className="text-4xl text-zinc-600 mb-4" />
+              <div className="col-span-full py-16 text-center text-slate-600 glass-panel rounded-2xl border-dashed border-2 border-slate-300/50">
+                <FontAwesomeIcon icon={faUsers} className="text-4xl text-slate-400 mb-4" />
                 <p className="text-lg">No exact matches found right now.</p>
-                <p className="text-sm text-zinc-500 mt-2">Check back later or update your project skills.</p>
+                <p className="text-sm text-slate-500 mt-2">Check back later or update your project skills.</p>
               </div>
             )}
           </div>
