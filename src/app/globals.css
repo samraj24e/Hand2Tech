@@ -187,16 +187,16 @@
   }
 }
 
-@keyframes slideLeftHalf {
+@keyframes slideLeftFull {
   0% { transform: translateX(-150px); opacity: 0; }
-  60% { opacity: 1; }
-  100% { transform: translateX(0); opacity: 1; }
+  30% { opacity: 1; }
+  100% { transform: translateX(-10px); opacity: 1; }
 }
 
-@keyframes slideRightHalf {
+@keyframes slideRightFull {
   0% { transform: translateX(150px); opacity: 0; }
-  60% { opacity: 1; }
-  100% { transform: translateX(0); opacity: 1; }
+  30% { opacity: 1; }
+  100% { transform: translateX(10px); opacity: 1; }
 }
 
 @keyframes nokiaShake {
