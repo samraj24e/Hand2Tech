@@ -9,8 +9,10 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGoogle } from "@fortawesome/free-brands-svg-icons";
 import { faHammer, faLaptopCode, faSpinner } from "@fortawesome/free-solid-svg-icons";
 import { useRouter } from "next/navigation";
+import { SplashScreen } from "@/components/SplashScreen";
 
 export default function AuthPage() {
+  const [showSplash, setShowSplash] = useState(true);
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [role, setRole] = useState<"student" | "laborer" | null>(null);
@@ -143,6 +145,10 @@ export default function AuthPage() {
       setIsProcessing(false);
     }
   };
+
+  if (showSplash) {
+    return <SplashScreen onComplete={() => setShowSplash(false)} />;
+  }
 
   if (loading) {
     return (
