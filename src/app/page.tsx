@@ -251,6 +251,7 @@ export default function AuthPage() {
           {onboardingStep === 1 && (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-4">
               <button
+                type="button"
                 onClick={() => { setRole("student"); setOnboardingStep(2); }}
                 className="flex flex-col items-center justify-center gap-4 p-8 rounded-2xl border border-zinc-700/50 bg-zinc-900/40 hover:bg-zinc-800/60 hover:border-blue-500/80 transition-all group shadow-lg hover:shadow-[0_0_20px_rgba(59,130,246,0.3)] hover:-translate-y-1"
               >
@@ -264,6 +265,7 @@ export default function AuthPage() {
               </button>
               
               <button
+                type="button"
                 onClick={() => { setRole("laborer"); setOnboardingStep(2); }}
                 className="flex flex-col items-center justify-center gap-4 p-8 rounded-2xl border border-zinc-700/50 bg-zinc-900/40 hover:bg-zinc-800/60 hover:border-emerald-500/80 transition-all group shadow-lg hover:shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:-translate-y-1"
               >
