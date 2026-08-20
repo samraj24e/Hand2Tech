@@ -173,31 +173,37 @@ export default function Dashboard() {
   const isLaborer = userProfile?.role === 'laborer';
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100 font-sans">
-      {/* Navbar */}
-      <nav className="border-b border-zinc-800 bg-zinc-900/50 backdrop-blur-md sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="text-xl font-bold bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent">
+    <div className="min-h-screen bg-zinc-950 text-zinc-100 font-sans relative">
+      {/* Dynamic Background */}
+      <div className="fixed top-0 left-0 w-full h-full overflow-hidden pointer-events-none -z-10">
+        <div className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] bg-emerald-600/20 rounded-full blur-[120px] animate-blob" />
+        <div className="absolute bottom-[-10%] left-[-10%] w-[600px] h-[600px] bg-blue-600/20 rounded-full blur-[120px] animate-blob animation-delay-2000" />
+      </div>
+
+      {/* Floating Navbar */}
+      <div className="sticky top-4 z-40 px-4 max-w-7xl mx-auto">
+        <nav className="glass-panel-heavy rounded-2xl flex items-center justify-between px-6 py-4 shadow-[0_10px_40px_rgba(0,0,0,0.5)] border border-zinc-700/50">
+          <div className="text-2xl font-extrabold bg-gradient-to-r from-blue-400 via-emerald-400 to-indigo-400 bg-clip-text text-transparent text-glow tracking-tight cursor-default">
             Hand2Tech
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-6">
             <DropdownMenu>
-              <DropdownMenuTrigger className="relative p-2 hover:bg-zinc-800 rounded-md transition-colors">
-                  <FontAwesomeIcon icon={faBell} className="text-zinc-400 text-lg" />
+              <DropdownMenuTrigger className="relative p-2.5 bg-zinc-800/50 hover:bg-zinc-700/80 rounded-xl transition-all shadow-inner hover:shadow-[0_0_15px_rgba(59,130,246,0.3)]">
+                  <FontAwesomeIcon icon={faBell} className="text-zinc-300 text-lg" />
                   {pendingRequests.length > 0 && (
-                    <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+                    <span className="absolute top-1 right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-zinc-900 animate-pulse" />
                   )}
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-80 bg-zinc-900 border-zinc-800 text-zinc-100">
+              <DropdownMenuContent align="end" className="w-80 glass-panel border-zinc-700 text-zinc-100 rounded-xl shadow-2xl p-2">
                 {pendingRequests.length === 0 ? (
-                  <div className="p-4 text-center text-zinc-500">No new notifications</div>
+                  <div className="p-6 text-center text-zinc-500">No new notifications</div>
                 ) : (
                   pendingRequests.map(req => (
-                    <DropdownMenuItem key={req.id} className="p-3 flex flex-col items-start gap-2 focus:bg-zinc-800">
-                      <div><span className="font-bold text-blue-400">{req.requester.name}</span> wants to connect on <span className="font-semibold text-emerald-400">{req.project.title}</span></div>
-                      <div className="flex gap-2 w-full">
-                        <Button size="sm" onClick={(e) => { e.stopPropagation(); handleAccept(req.id); }} className="flex-1 bg-blue-600 hover:bg-blue-700"><FontAwesomeIcon icon={faCheck}/></Button>
-                        <Button size="sm" variant="destructive" onClick={(e) => { e.stopPropagation(); handleReject(req.id); }} className="flex-1"><FontAwesomeIcon icon={faTimes}/></Button>
+                    <DropdownMenuItem key={req.id} className="p-4 flex flex-col items-start gap-3 focus:bg-zinc-800/80 rounded-lg cursor-default">
+                      <div className="text-sm"><span className="font-bold text-blue-400">{req.requester.name}</span> wants to connect on <span className="font-semibold text-emerald-400">{req.project.title}</span></div>
+                      <div className="flex gap-3 w-full mt-1">
+                        <Button size="sm" onClick={(e) => { e.stopPropagation(); handleAccept(req.id); }} className="flex-1 bg-emerald-600/90 hover:bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.2)]"><FontAwesomeIcon icon={faCheck}/></Button>
+                        <Button size="sm" variant="destructive" onClick={(e) => { e.stopPropagation(); handleReject(req.id); }} className="flex-1 shadow-[0_0_15px_rgba(239,68,68,0.2)]"><FontAwesomeIcon icon={faTimes}/></Button>
                       </div>
                     </DropdownMenuItem>
                   ))
@@ -205,44 +211,48 @@ export default function Dashboard() {
               </DropdownMenuContent>
             </DropdownMenu>
 
-            <Button variant="ghost" onClick={() => router.push('/profile')} title="Edit Profile">
+            <Button variant="ghost" onClick={() => router.push('/profile')} className="p-2.5 bg-zinc-800/50 hover:bg-zinc-700/80 rounded-xl transition-all shadow-inner text-zinc-300" title="Edit Profile">
               <FontAwesomeIcon icon={faUserCircle} className="text-xl" />
             </Button>
 
-            <Button variant="ghost" onClick={async () => { await supabase.auth.signOut(); router.push('/'); }}>
+            <Button variant="outline" className="border-zinc-700/50 hover:bg-zinc-800 hover:text-white rounded-xl text-sm font-medium" onClick={async () => { await supabase.auth.signOut(); router.push('/'); }}>
               Sign Out
             </Button>
           </div>
-        </div>
-      </nav>
+        </nav>
+      </div>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
+      <div className="max-w-7xl mx-auto px-4 py-12 grid grid-cols-1 lg:grid-cols-12 gap-10">
         
         {/* Left Column: Project Creation & Active Chats */}
-        <div className={`lg:col-span-5 space-y-8 ${isLaborer ? 'hidden lg:block' : 'block'}`}>
-          <Card className="bg-zinc-900/50 border-zinc-800 shadow-xl overflow-hidden backdrop-blur-sm">
-            <div className="h-1 bg-gradient-to-r from-blue-500 to-indigo-500" />
-            <CardHeader>
-              <CardTitle>Create a Project</CardTitle>
-              <CardDescription className="text-zinc-400">Describe what you need built, and our AI will extract required skills.</CardDescription>
+        <div className={`lg:col-span-5 space-y-10 ${isLaborer ? 'hidden lg:block' : 'block'}`}>
+          <Card className="glass-panel overflow-hidden border-zinc-700/50 transition-all hover:shadow-[0_0_30px_rgba(59,130,246,0.15)]">
+            <div className="h-1.5 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 animate-[shimmer_3s_infinite]" />
+            <CardHeader className="pt-8">
+              <CardTitle className="text-2xl font-bold text-zinc-100">Create a Project</CardTitle>
+              <CardDescription className="text-zinc-400 mt-2">Describe what you need built, and our AI will instantly extract the required skills.</CardDescription>
             </CardHeader>
             <CardContent>
-              <form onSubmit={handleCreateProject} className="space-y-4">
-                <Input 
-                  placeholder="Project Title (e.g., Custom Drone Chassis)" 
-                  className="bg-zinc-950 border-zinc-800"
-                  value={newProjectTitle}
-                  onChange={e => setNewProjectTitle(e.target.value)}
-                />
-                <Textarea 
-                  placeholder="Describe the physical labor or tech integration required..." 
-                  className="bg-zinc-950 border-zinc-800 min-h-[120px]"
-                  value={newProjectDesc}
-                  onChange={e => setNewProjectDesc(e.target.value)}
-                />
-                <Button type="submit" disabled={isCreatingProject} className="w-full bg-blue-600 hover:bg-blue-700">
-                  {isCreatingProject ? <FontAwesomeIcon icon={faSpinner} className="animate-spin" /> : "Post Project"}
+              <form onSubmit={handleCreateProject} className="space-y-5">
+                <div className="relative group">
+                  <Input 
+                    placeholder="Project Title (e.g., Custom Drone Chassis)" 
+                    className="bg-zinc-950/50 border-zinc-700/50 py-6 rounded-xl focus-visible:ring-blue-500 transition-all"
+                    value={newProjectTitle}
+                    onChange={e => setNewProjectTitle(e.target.value)}
+                  />
+                </div>
+                <div className="relative group">
+                  <Textarea 
+                    placeholder="Describe the physical labor or tech integration required..." 
+                    className="bg-zinc-950/50 border-zinc-700/50 min-h-[140px] rounded-xl focus-visible:ring-indigo-500 transition-all resize-none p-4"
+                    value={newProjectDesc}
+                    onChange={e => setNewProjectDesc(e.target.value)}
+                  />
+                </div>
+                <Button type="submit" disabled={isCreatingProject} className="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-6 rounded-xl shadow-[0_0_20px_rgba(59,130,246,0.3)] transition-all">
+                  {isCreatingProject ? <FontAwesomeIcon icon={faSpinner} className="animate-spin text-xl" /> : "Post Project"}
                 </Button>
               </form>
             </CardContent>
@@ -250,18 +260,24 @@ export default function Dashboard() {
 
           {/* Active Chats */}
           {activeConnections.length > 0 && (
-            <Card className="bg-zinc-900/50 border-zinc-800 shadow-xl backdrop-blur-sm">
-              <CardHeader>
-                <CardTitle>Active Collaborations</CardTitle>
+            <Card className="glass-panel border-zinc-700/50">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-xl flex items-center gap-3">
+                  <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                  Active Collaborations
+                </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-3">
+              <CardContent className="space-y-4">
                 {activeConnections.map(conn => (
-                  <div key={conn.id} className="p-4 rounded-xl bg-zinc-800/50 border border-zinc-700 flex items-center justify-between">
+                  <div key={conn.id} className="p-5 rounded-2xl bg-zinc-950/40 border border-zinc-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:border-zinc-600 transition-colors">
                     <div>
-                      <div className="font-semibold text-emerald-400">{conn.project.title}</div>
-                      <div className="text-xs text-zinc-400">with {conn.requester_id === user.id ? conn.owner.name : conn.requester.name}</div>
+                      <div className="font-bold text-emerald-400 tracking-wide">{conn.project.title}</div>
+                      <div className="text-sm text-zinc-400 mt-1 flex items-center gap-2">
+                        <FontAwesomeIcon icon={faUserCircle} className="text-zinc-500" />
+                        {conn.requester_id === user.id ? conn.owner.name : conn.requester.name}
+                      </div>
                     </div>
-                    <Button variant="outline" size="sm" className="border-zinc-600 hover:bg-zinc-700 hover:text-white" onClick={() => setActiveChatConnection(conn)}>
+                    <Button variant="outline" className="rounded-xl border-zinc-700 hover:bg-zinc-800 hover:text-white shadow-inner bg-zinc-900/50" onClick={() => setActiveChatConnection(conn)}>
                       <FontAwesomeIcon icon={faComments} className="mr-2" /> Chat
                     </Button>
                   </div>
@@ -272,38 +288,40 @@ export default function Dashboard() {
         </div>
 
         {/* Right Column: Innovators Feed */}
-        <div className={`lg:col-span-7 space-y-6 ${isLaborer ? 'col-span-1' : ''}`}>
-          <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold">
+        <div className={`lg:col-span-7 space-y-8 ${isLaborer ? 'col-span-1' : ''}`}>
+          <div className="flex items-center justify-between px-2">
+            <h2 className="text-3xl font-bold tracking-tight text-glow">
               {isLaborer ? "Recommended Projects & People" : "Recommended Innovators"}
             </h2>
-            <FontAwesomeIcon icon={faUsers} className="text-zinc-500 text-xl" />
+            <div className="w-12 h-12 rounded-full bg-zinc-800/50 flex items-center justify-center border border-zinc-700/50 backdrop-blur-sm">
+              <FontAwesomeIcon icon={faUsers} className="text-emerald-400 text-xl drop-shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {recommendedInnovators.map(innovator => (
-              <Card key={innovator.id} className="bg-zinc-900/80 border-zinc-800 shadow-lg hover:border-emerald-500/50 transition-colors group cursor-default">
-                <CardContent className="p-6">
-                  <div className="flex justify-between items-start mb-4">
+              <Card key={innovator.id} className="glass-panel border-zinc-700/40 hover:border-emerald-500/50 transition-all duration-300 group cursor-default hover:-translate-y-1 hover:shadow-[0_15px_30px_rgba(0,0,0,0.4)]">
+                <CardContent className="p-7">
+                  <div className="flex justify-between items-start mb-5">
                     <div>
-                      <h3 className="font-bold text-lg text-zinc-100 group-hover:text-emerald-400 transition-colors">{innovator.name}</h3>
-                      <p className="text-sm text-zinc-500 capitalize">{innovator.role}</p>
+                      <h3 className="font-bold text-xl text-zinc-100 group-hover:text-emerald-400 transition-colors drop-shadow-md">{innovator.name}</h3>
+                      <p className="text-sm font-medium text-emerald-500/80 capitalize tracking-wider mt-1">{innovator.role}</p>
                       {innovator.location && (
-                        <p className="text-xs text-zinc-400 mt-1"><FontAwesomeIcon icon={faMapMarkerAlt} className="mr-1" />{innovator.location}</p>
+                        <p className="text-xs text-zinc-400 mt-2 flex items-center gap-1.5"><FontAwesomeIcon icon={faMapMarkerAlt} className="text-zinc-500" />{innovator.location}</p>
                       )}
                     </div>
-                    <div className="w-10 h-10 rounded-full bg-emerald-500/10 flex items-center justify-center">
-                      <span className="text-emerald-500 font-bold">{innovator.name.charAt(0)}</span>
+                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-blue-500/20 flex items-center justify-center border border-emerald-500/20 shadow-inner">
+                      <span className="text-emerald-400 font-extrabold text-lg drop-shadow-[0_0_5px_rgba(52,211,153,0.5)]">{innovator.name.charAt(0)}</span>
                     </div>
                   </div>
 
                   {innovator.bio && (
-                    <p className="text-sm text-zinc-400 mb-4 line-clamp-2">{innovator.bio}</p>
+                    <p className="text-sm text-zinc-300 mb-6 line-clamp-2 leading-relaxed">{innovator.bio}</p>
                   )}
                   
-                  <div className="flex flex-wrap gap-2 mb-6">
+                  <div className="flex flex-wrap gap-2 mb-8">
                     {(innovator.skills || []).map((skill: string, idx: number) => (
-                      <span key={idx} className="px-2 py-1 rounded-md bg-zinc-800 text-xs font-medium text-zinc-300 border border-zinc-700">
+                      <span key={idx} className="px-3 py-1.5 rounded-lg bg-zinc-900/80 text-xs font-semibold text-zinc-300 border border-zinc-700/80 shadow-[inset_0_1px_2px_rgba(255,255,255,0.05)]">
                         {skill}
                       </span>
                     ))}
@@ -311,7 +329,7 @@ export default function Dashboard() {
 
                   <Button 
                     onClick={() => handleRequestConnect(innovator.id)}
-                    className="w-full bg-zinc-800 hover:bg-emerald-600 text-zinc-100 transition-all border border-zinc-700 group-hover:border-emerald-500"
+                    className="w-full bg-zinc-800/80 hover:bg-emerald-600 text-zinc-100 transition-all duration-300 border border-zinc-700 group-hover:border-emerald-500/50 group-hover:shadow-[0_0_20px_rgba(16,185,129,0.3)] rounded-xl py-6"
                   >
                     <FontAwesomeIcon icon={faPlus} className="mr-2" /> Request to Connect
                   </Button>
@@ -320,8 +338,10 @@ export default function Dashboard() {
             ))}
             
             {recommendedInnovators.length === 0 && (
-              <div className="col-span-full py-12 text-center text-zinc-500 bg-zinc-900/30 rounded-xl border border-zinc-800 border-dashed">
-                No exact matches found right now.
+              <div className="col-span-full py-16 text-center text-zinc-400 glass-panel rounded-2xl border-dashed border-2 border-zinc-700/50">
+                <FontAwesomeIcon icon={faUsers} className="text-4xl text-zinc-600 mb-4" />
+                <p className="text-lg">No exact matches found right now.</p>
+                <p className="text-sm text-zinc-500 mt-2">Check back later or update your project skills.</p>
               </div>
             )}
           </div>

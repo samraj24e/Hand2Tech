@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowLeft, faSave, faSpinner, faTimes } from "@fortawesome/free-solid-svg-icons";
+import { faArrowLeft, faSave, faSpinner, faTimes, faUserCircle, faMapMarkerAlt } from "@fortawesome/free-solid-svg-icons";
 import { toast } from "sonner";
 
 export default function ProfilePage() {
@@ -84,82 +84,99 @@ export default function ProfilePage() {
   );
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100 font-sans p-4 lg:p-8">
-      <div className="max-w-3xl mx-auto space-y-6">
-        <Button variant="ghost" onClick={() => router.push("/dashboard")} className="text-zinc-400 hover:text-white">
-          <FontAwesomeIcon icon={faArrowLeft} className="mr-2" /> Back to Dashboard
+    <div className="min-h-screen bg-zinc-950 text-zinc-100 font-sans p-4 lg:p-12 relative overflow-hidden">
+      {/* Background */}
+      <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-blue-600/20 rounded-full blur-[120px] pointer-events-none animate-blob" />
+      <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-emerald-600/20 rounded-full blur-[120px] pointer-events-none animate-blob animation-delay-4000" />
+
+      <div className="max-w-3xl mx-auto space-y-8 relative z-10">
+        <Button variant="ghost" onClick={() => router.push("/dashboard")} className="text-zinc-400 hover:text-white bg-zinc-900/30 backdrop-blur-sm border border-zinc-800 rounded-xl px-5 transition-all hover:bg-zinc-800 hover:-translate-x-1">
+          <FontAwesomeIcon icon={faArrowLeft} className="mr-3" /> Back to Dashboard
         </Button>
 
-        <Card className="bg-zinc-900 border-zinc-800 shadow-2xl">
-          <CardHeader>
-            <CardTitle className="text-2xl font-bold">Edit Profile</CardTitle>
-            <CardDescription className="text-zinc-400">
-              Update your personal information and skills.
+        <Card className="glass-panel-heavy overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
+          <div className="h-1.5 w-full bg-gradient-to-r from-blue-500 via-emerald-400 to-indigo-500 animate-[shimmer_3s_infinite]" />
+          <CardHeader className="pt-10 pb-6 px-10">
+            <CardTitle className="text-3xl font-extrabold text-glow tracking-tight flex items-center gap-3">
+              <FontAwesomeIcon icon={faUserCircle} className="text-blue-400" /> Edit Profile
+            </CardTitle>
+            <CardDescription className="text-zinc-400 text-md mt-2">
+              Update your personal information and technical skills to find better matches.
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSave} className="space-y-6">
+          <CardContent className="px-10 pb-10">
+            <form onSubmit={handleSave} className="space-y-8">
               
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-zinc-300">Name</label>
+              <div className="space-y-3 group">
+                <label className="text-sm font-semibold text-zinc-300 tracking-wide uppercase">Name</label>
                 <Input 
                   value={name} 
                   onChange={e => setName(e.target.value)} 
-                  className="bg-zinc-950 border-zinc-800 focus-visible:ring-blue-500" 
+                  className="bg-zinc-950/60 border-zinc-700/60 focus-visible:ring-blue-500 py-6 rounded-xl shadow-inner transition-all group-focus-within:border-blue-500/50" 
                 />
               </div>
 
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-zinc-300">Location</label>
+              <div className="space-y-3 group">
+                <label className="text-sm font-semibold text-zinc-300 tracking-wide uppercase flex items-center gap-2">
+                  Location <FontAwesomeIcon icon={faMapMarkerAlt} className="text-zinc-500" />
+                </label>
                 <Input 
                   placeholder="e.g. San Francisco, CA"
                   value={location} 
                   onChange={e => setLocation(e.target.value)} 
-                  className="bg-zinc-950 border-zinc-800 focus-visible:ring-blue-500" 
+                  className="bg-zinc-950/60 border-zinc-700/60 focus-visible:ring-emerald-500 py-6 rounded-xl shadow-inner transition-all group-focus-within:border-emerald-500/50" 
                 />
               </div>
 
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-zinc-300">Bio</label>
+              <div className="space-y-3 group">
+                <label className="text-sm font-semibold text-zinc-300 tracking-wide uppercase">Bio</label>
                 <Textarea 
                   placeholder="A short summary about you and your experience..."
                   value={bio} 
                   onChange={e => setBio(e.target.value)} 
-                  className="bg-zinc-950 border-zinc-800 min-h-[100px] focus-visible:ring-blue-500" 
+                  className="bg-zinc-950/60 border-zinc-700/60 min-h-[120px] focus-visible:ring-indigo-500 rounded-xl shadow-inner transition-all group-focus-within:border-indigo-500/50 p-4 resize-none" 
                 />
               </div>
 
-              <div className="space-y-4">
-                <label className="text-sm font-medium text-zinc-300">Technical Skills</label>
+              <div className="space-y-4 pt-4">
+                <label className="text-sm font-semibold text-zinc-300 tracking-wide uppercase">Technical Skills</label>
                 
-                <div className="flex flex-wrap gap-2 mb-2">
+                <div className="flex flex-wrap gap-3 mb-4">
                   {skills.map((skill, idx) => (
-                    <span key={idx} className="flex items-center px-3 py-1 rounded-md bg-zinc-800 text-sm font-medium text-zinc-200 border border-zinc-700">
+                    <span key={idx} className="flex items-center px-4 py-2 rounded-full bg-zinc-900/80 text-sm font-semibold text-zinc-100 border border-zinc-700/80 shadow-[inset_0_1px_2px_rgba(255,255,255,0.1),0_0_10px_rgba(0,0,0,0.5)] transition-all animate-in zoom-in duration-200 group">
                       {skill}
-                      <button type="button" onClick={() => removeSkill(skill)} className="ml-2 text-zinc-400 hover:text-red-400">
+                      <button type="button" onClick={() => removeSkill(skill)} className="ml-3 text-zinc-500 hover:text-red-400 hover:scale-110 transition-all focus:outline-none">
                         <FontAwesomeIcon icon={faTimes} />
                       </button>
                     </span>
                   ))}
-                  {skills.length === 0 && <span className="text-zinc-500 text-sm italic">No skills added yet.</span>}
+                  {skills.length === 0 && <span className="text-zinc-500 text-sm italic py-2">No skills added yet. They help us match you!</span>}
                 </div>
 
-                <div className="flex gap-2">
+                <div className="flex gap-3">
                   <Input 
                     placeholder="Add a new skill (e.g. React, Welding)"
                     value={newSkill} 
                     onChange={e => setNewSkill(e.target.value)} 
                     onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addSkill(); } }}
-                    className="bg-zinc-950 border-zinc-800 focus-visible:ring-blue-500" 
+                    className="bg-zinc-950/60 border-zinc-700/60 focus-visible:ring-emerald-500 py-6 rounded-xl shadow-inner transition-all flex-1" 
                   />
-                  <Button type="button" onClick={addSkill} variant="secondary" className="bg-zinc-800 hover:bg-zinc-700">Add</Button>
+                  <Button type="button" onClick={addSkill} variant="secondary" className="bg-zinc-800 hover:bg-emerald-600 hover:text-white transition-all rounded-xl shadow-md border border-zinc-700 px-6 font-semibold">
+                    Add
+                  </Button>
                 </div>
               </div>
 
-              <div className="pt-4 border-t border-zinc-800">
-                <Button type="submit" disabled={saving} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-6 text-lg">
-                  {saving ? <FontAwesomeIcon icon={faSpinner} className="animate-spin mr-2" /> : <FontAwesomeIcon icon={faSave} className="mr-2" />}
-                  Save Profile
+              <div className="pt-8 border-t border-zinc-800/80 mt-8">
+                <Button type="submit" disabled={saving} className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-7 rounded-xl shadow-[0_0_20px_rgba(59,130,246,0.4)] transition-all overflow-hidden relative group">
+                  <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:animate-[shimmer_1.5s_infinite]" />
+                  {saving ? (
+                    <FontAwesomeIcon icon={faSpinner} className="animate-spin text-2xl relative z-10" />
+                  ) : (
+                    <span className="flex items-center text-lg relative z-10">
+                      <FontAwesomeIcon icon={faSave} className="mr-3" /> Save Profile Changes
+                    </span>
+                  )}
                 </Button>
               </div>
 

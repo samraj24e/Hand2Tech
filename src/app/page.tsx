@@ -140,47 +140,55 @@ export default function AuthPage() {
 
   if (!user) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-zinc-950 p-4 relative overflow-hidden">
-        {/* Abstract background blobs */}
-        <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-blue-600 rounded-full mix-blend-multiply filter blur-[128px] opacity-20"></div>
-        <div className="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-emerald-600 rounded-full mix-blend-multiply filter blur-[128px] opacity-20"></div>
+      <div className="flex min-h-screen items-center justify-center bg-zinc-950 p-4 relative overflow-hidden font-sans">
+        {/* Animated abstract background blobs */}
+        <div className="absolute top-0 left-[-10%] w-96 h-96 bg-blue-600/40 rounded-full blur-3xl animate-blob"></div>
+        <div className="absolute top-0 right-[-10%] w-96 h-96 bg-emerald-600/30 rounded-full blur-3xl animate-blob animation-delay-2000"></div>
+        <div className="absolute -bottom-8 left-20 w-96 h-96 bg-indigo-600/30 rounded-full blur-3xl animate-blob animation-delay-4000"></div>
 
-        <Card className="w-full max-w-md bg-zinc-900/50 backdrop-blur-xl border-zinc-800 text-zinc-100 shadow-2xl">
-          <CardHeader className="text-center space-y-2">
-            <CardTitle className="text-4xl font-extrabold tracking-tight bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent">
+        <Card className="w-full max-w-md glass-panel-heavy text-zinc-100 relative z-10 transition-transform duration-500 hover:scale-[1.01]">
+          <CardHeader className="text-center space-y-4 pt-8">
+            <CardTitle className="text-5xl font-extrabold tracking-tight bg-gradient-to-r from-blue-400 via-emerald-400 to-indigo-400 bg-clip-text text-transparent text-glow">
               Hand2Tech
             </CardTitle>
-            <CardDescription className="text-zinc-400 text-lg">
+            <CardDescription className="text-zinc-400 text-lg font-medium">
               Connect to build the future.
             </CardDescription>
           </CardHeader>
-          <CardContent className="mt-4">
-            <form onSubmit={handleEmailAuth} className="flex flex-col gap-4">
-              <Input 
-                type="email" 
-                placeholder="Email address" 
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-                className="bg-zinc-950 border-zinc-800 py-6"
-                required
-              />
-              <Input 
-                type="password" 
-                placeholder="Password" 
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                className="bg-zinc-950 border-zinc-800 py-6"
-                required
-              />
+          <CardContent className="mt-4 pb-8">
+            <form onSubmit={handleEmailAuth} className="flex flex-col gap-5">
+              <div className="relative group">
+                <Input 
+                  type="email" 
+                  placeholder="Email address" 
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  className="bg-zinc-950/50 border-zinc-700/50 py-6 text-md focus-visible:ring-emerald-500 focus-visible:border-emerald-500 transition-all rounded-xl"
+                  required
+                />
+              </div>
+              <div className="relative group">
+                <Input 
+                  type="password" 
+                  placeholder="Password" 
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  className="bg-zinc-950/50 border-zinc-700/50 py-6 text-md focus-visible:ring-blue-500 focus-visible:border-blue-500 transition-all rounded-xl"
+                  required
+                />
+              </div>
               <Button 
                 type="submit" 
                 disabled={isSigningIn}
-                className="w-full py-6 text-lg bg-zinc-100 hover:bg-white text-zinc-900 font-semibold transition-all shadow-[0_0_20px_rgba(255,255,255,0.1)] hover:shadow-[0_0_30px_rgba(255,255,255,0.2)]"
+                className="relative overflow-hidden w-full py-7 text-lg bg-zinc-100 hover:bg-white text-zinc-900 font-bold transition-all rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.1)] hover:shadow-[0_0_30px_rgba(255,255,255,0.3)] mt-2 group"
               >
+                <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/40 to-transparent translate-x-[-100%] group-hover:animate-[shimmer_1.5s_infinite]"></div>
                 {isSigningIn ? (
-                  <FontAwesomeIcon icon={faSpinner} className="animate-spin text-xl" />
+                  <FontAwesomeIcon icon={faSpinner} className="animate-spin text-2xl" />
                 ) : (
-                  "Continue with Email"
+                  <span className="relative z-10 flex items-center justify-center">
+                    Continue with Email
+                  </span>
                 )}
               </Button>
             </form>
@@ -191,73 +199,78 @@ export default function AuthPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-950 p-4 relative overflow-hidden">
+    <div className="flex min-h-screen items-center justify-center bg-zinc-950 p-4 relative overflow-hidden font-sans">
        {/* Background */}
-       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-3xl h-[500px] bg-gradient-to-tr from-blue-900/20 to-emerald-900/20 rounded-full blur-[100px] -z-10" />
+       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-3xl h-[500px] bg-gradient-to-tr from-blue-600/30 to-emerald-600/30 rounded-full blur-[120px] -z-10 animate-blob" />
        
-      <Card className="w-full max-w-xl bg-zinc-900/80 backdrop-blur-2xl border-zinc-800 text-zinc-100 shadow-2xl overflow-hidden">
-        <div className="h-1 w-full bg-gradient-to-r from-blue-500 to-emerald-500" />
-        <CardHeader className="text-center">
-          <CardTitle className="text-3xl font-bold">Complete Your Profile</CardTitle>
-          <CardDescription className="text-zinc-400">
+      <Card className="w-full max-w-xl glass-panel-heavy text-zinc-100 relative z-10 transition-all duration-500 overflow-hidden">
+        <div className="h-1.5 w-full bg-gradient-to-r from-blue-500 via-emerald-400 to-indigo-500 animate-[shimmer_3s_infinite]" />
+        <CardHeader className="text-center pt-8">
+          <CardTitle className="text-4xl font-extrabold text-glow">Complete Your Profile</CardTitle>
+          <CardDescription className="text-zinc-400 text-md mt-2">
             {onboardingStep === 1 ? "How will you use Hand2Tech?" : "Show us your skills"}
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pb-8">
           {onboardingStep === 1 && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-4">
               <button
                 onClick={() => { setRole("student"); setOnboardingStep(2); }}
-                className="flex flex-col items-center justify-center gap-4 p-8 rounded-2xl border-2 border-zinc-800 bg-zinc-800/30 hover:bg-zinc-800/80 hover:border-blue-500 transition-all group"
+                className="flex flex-col items-center justify-center gap-4 p-8 rounded-2xl border border-zinc-700/50 bg-zinc-900/40 hover:bg-zinc-800/60 hover:border-blue-500/80 transition-all group shadow-lg hover:shadow-[0_0_20px_rgba(59,130,246,0.3)] hover:-translate-y-1"
               >
-                <div className="w-16 h-16 rounded-full bg-blue-500/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                  <FontAwesomeIcon icon={faLaptopCode} className="text-3xl text-blue-400" />
+                <div className="w-20 h-20 rounded-full bg-blue-500/10 flex items-center justify-center group-hover:scale-110 group-hover:bg-blue-500/20 transition-all shadow-[inset_0_0_20px_rgba(59,130,246,0.1)]">
+                  <FontAwesomeIcon icon={faLaptopCode} className="text-4xl text-blue-400 drop-shadow-[0_0_10px_rgba(59,130,246,0.8)]" />
                 </div>
-                <div className="text-center">
-                  <h3 className="font-semibold text-lg text-zinc-200">Tech Innovator</h3>
-                  <p className="text-sm text-zinc-400 mt-1">I code, design, or engineer digital solutions.</p>
+                <div className="text-center mt-2">
+                  <h3 className="font-bold text-xl text-zinc-100 group-hover:text-blue-300 transition-colors">Tech Innovator</h3>
+                  <p className="text-sm text-zinc-400 mt-2">I code, design, or engineer digital solutions.</p>
                 </div>
               </button>
               
               <button
                 onClick={() => { setRole("laborer"); setOnboardingStep(2); }}
-                className="flex flex-col items-center justify-center gap-4 p-8 rounded-2xl border-2 border-zinc-800 bg-zinc-800/30 hover:bg-zinc-800/80 hover:border-emerald-500 transition-all group"
+                className="flex flex-col items-center justify-center gap-4 p-8 rounded-2xl border border-zinc-700/50 bg-zinc-900/40 hover:bg-zinc-800/60 hover:border-emerald-500/80 transition-all group shadow-lg hover:shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:-translate-y-1"
               >
-                <div className="w-16 h-16 rounded-full bg-emerald-500/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                  <FontAwesomeIcon icon={faHammer} className="text-3xl text-emerald-400" />
+                <div className="w-20 h-20 rounded-full bg-emerald-500/10 flex items-center justify-center group-hover:scale-110 group-hover:bg-emerald-500/20 transition-all shadow-[inset_0_0_20px_rgba(16,185,129,0.1)]">
+                  <FontAwesomeIcon icon={faHammer} className="text-4xl text-emerald-400 drop-shadow-[0_0_10px_rgba(16,185,129,0.8)]" />
                 </div>
-                <div className="text-center">
-                  <h3 className="font-semibold text-lg text-zinc-200">Skilled Craftsman</h3>
-                  <p className="text-sm text-zinc-400 mt-1">I build, weld, fabricate, or do physical labor.</p>
+                <div className="text-center mt-2">
+                  <h3 className="font-bold text-xl text-zinc-100 group-hover:text-emerald-300 transition-colors">Skilled Craftsman</h3>
+                  <p className="text-sm text-zinc-400 mt-2">I build, weld, fabricate, or do physical labor.</p>
                 </div>
               </button>
             </div>
           )}
 
           {onboardingStep === 2 && (
-            <div className="flex flex-col items-center justify-center py-8 space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-              <div className="text-center max-w-sm">
-                <h3 className="text-xl font-medium mb-2">
+            <div className="flex flex-col items-center justify-center py-8 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <div className="text-center max-w-md">
+                <h3 className="text-2xl font-bold mb-3 text-glow">
                   Upload your {role === 'student' ? 'Resume' : 'Trade Certificate'}
                 </h3>
-                <p className="text-zinc-400 text-sm">
-                  Our AI will instantly analyze your document to highlight your top skills and match you with projects.
+                <p className="text-zinc-400 text-sm leading-relaxed">
+                  Our AI will instantly analyze your document to highlight your top skills and match you with the perfect projects.
                 </p>
               </div>
 
-              <label className="relative flex flex-col items-center justify-center w-full h-48 border-2 border-dashed rounded-xl border-zinc-700 bg-zinc-800/20 hover:bg-zinc-800/50 hover:border-blue-500 transition-all cursor-pointer group">
+              <label className="relative flex flex-col items-center justify-center w-full h-56 border-2 border-dashed rounded-2xl border-zinc-700/60 bg-zinc-900/30 hover:bg-zinc-800/50 hover:border-emerald-500/60 transition-all cursor-pointer group shadow-inner">
                 <div className="flex flex-col items-center justify-center pt-5 pb-6">
                   {isProcessing ? (
-                     <FontAwesomeIcon icon={faSpinner} className="text-4xl text-blue-500 animate-spin mb-4" />
+                     <div className="relative">
+                       <FontAwesomeIcon icon={faSpinner} className="text-5xl text-emerald-400 animate-spin mb-4 relative z-10" />
+                       <div className="absolute inset-0 bg-emerald-500/20 blur-xl rounded-full"></div>
+                     </div>
                   ) : (
-                    <svg className="w-10 h-10 mb-4 text-zinc-500 group-hover:text-blue-400 transition-colors" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
-                        <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
-                    </svg>
+                    <div className="w-16 h-16 bg-zinc-800/80 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 group-hover:bg-emerald-500/10 transition-all shadow-lg border border-zinc-700/50">
+                      <svg className="w-8 h-8 text-zinc-400 group-hover:text-emerald-400 transition-colors" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
+                          <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
+                      </svg>
+                    </div>
                   )}
-                  <p className="mb-2 text-sm text-zinc-400">
-                    <span className="font-semibold text-zinc-200">Click to upload</span> or drag and drop
+                  <p className="mb-2 text-md text-zinc-400 text-center">
+                    <span className="font-bold text-zinc-200 group-hover:text-emerald-300 transition-colors">Click to upload</span> or drag and drop
                   </p>
-                  <p className="text-xs text-zinc-500">PDF, DOCX, or PNG (MAX. 5MB)</p>
+                  <p className="text-xs text-zinc-500 font-medium">PDF, DOCX, or PNG (MAX. 5MB)</p>
                 </div>
                 <Input 
                   id="dropzone-file" 
@@ -270,7 +283,7 @@ export default function AuthPage() {
               </label>
 
               {isProcessing && (
-                <div className="text-blue-400 text-sm animate-pulse text-center">
+                <div className="text-emerald-400 text-md font-medium animate-pulse text-center tracking-wide">
                   Analyzing document with Groq AI...<br/>Extracting technical skills...
                 </div>
               )}
