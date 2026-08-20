@@ -54,6 +54,9 @@ export function ChatModal({ connection, currentUser, onClose }: { connection: an
     };
   }, [connection]);
 
+  const [showRatingModal, setShowRatingModal] = useState(false);
+  const [rating, setRating] = useState(5);
+
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
@@ -63,10 +66,24 @@ export function ChatModal({ connection, currentUser, onClose }: { connection: an
     const msg = text;
     setText("");
     
+    let translated_text = null;
+    try {
+      const res = await fetch('/api/translate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: msg })
+      });
+      const data = await res.json();
+      translated_text = data.translated_text;
+    } catch (e) {
+      console.error("Translation error", e);
+    }
+    
     await supabase.from("messages").insert({
       connection_id: connection.id,
       sender_id: currentUser.id,
-      text: msg
+      text: msg,
+      translated_text
     });
   };
 
@@ -113,7 +130,23 @@ export function ChatModal({ connection, currentUser, onClose }: { connection: an
   };
 
   const closeProject = async () => {
-    await supabase.from("connections").update({ status: 'rejected' }).eq("id", connection.id);
+    setShowRatingModal(true);
+  };
+
+  const submitRating = async () => {
+    const targetUserId = connection.requester_id === currentUser.id ? connection.owner_id : connection.requester_id;
+    
+    const { data: targetUser } = await supabase.from("users").select("rating").eq("id", targetUserId).single();
+    
+    let newRating = rating;
+    if (targetUser && targetUser.rating) {
+      newRating = (Number(targetUser.rating) + rating) / 2;
+    }
+    
+    await supabase.from("users").update({ rating: newRating }).eq("id", targetUserId);
+    await supabase.from("connections").update({ status: 'completed' }).eq("id", connection.id);
+    
+    setShowRatingModal(false);
     onClose();
   };
 
@@ -130,6 +163,7 @@ export function ChatModal({ connection, currentUser, onClose }: { connection: an
   const isOwner = connection?.owner_id === currentUser?.id;
 
   return (
+    <>
     <Dialog open={!!connection} onOpenChange={onClose}>
       {/* Added backdrop blur to the modal overlay implicitly through Dialog in shadcn, but we can style DialogContent */}
       <DialogContent className="sm:max-w-4xl glass-panel-heavy p-0 overflow-hidden flex flex-col md:flex-row h-[700px] border-zinc-700/60 shadow-[0_20px_60px_rgba(0,0,0,0.8)] rounded-3xl">
@@ -166,6 +200,11 @@ export function ChatModal({ connection, currentUser, onClose }: { connection: an
                 <div key={i} className={`flex ${isMe ? 'justify-end' : 'justify-start'} animate-in fade-in slide-in-from-bottom-2 duration-300`}>
                   <div className={`max-w-[75%] rounded-2xl px-5 py-3 shadow-md relative group ${isMe ? 'bg-gradient-to-br from-blue-600 to-indigo-600 text-white rounded-br-sm' : 'bg-zinc-800 text-zinc-100 rounded-bl-sm border border-zinc-700/50'}`}>
                     <div className="break-words leading-relaxed text-[15px]">{m.text}</div>
+                    {m.translated_text && m.translated_text !== m.text && (
+                      <div className="break-words leading-relaxed text-[13px] mt-2 pt-2 border-t border-white/20 italic opacity-80">
+                        {m.translated_text}
+                      </div>
+                    )}
                     {m.file_url && (
                       <a href={m.file_url} target="_blank" rel="noreferrer" className="mt-3 inline-flex items-center gap-2 text-xs bg-black/30 px-3 py-2 rounded-lg hover:bg-black/50 transition-colors border border-white/10 w-full">
                         <FontAwesomeIcon icon={faPaperclip} /> View Attachment
@@ -251,5 +290,38 @@ export function ChatModal({ connection, currentUser, onClose }: { connection: an
         )}
       </DialogContent>
     </Dialog>
+
+    {/* Rating Modal */}
+    {showRatingModal && (
+      <Dialog open={showRatingModal} onOpenChange={() => {}}> 
+        <DialogContent className="sm:max-w-md glass-panel-heavy border-zinc-700/60 shadow-2xl rounded-3xl">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold text-center text-glow">Rate Your Experience</DialogTitle>
+            <DialogDescription className="text-center text-zinc-400 mt-2">
+              Please rate your collaboration. This replaces the traditional escrow system with community trust!
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-center gap-4 py-8">
+            {[1, 2, 3, 4, 5].map((star) => (
+              <button
+                key={star}
+                type="button"
+                onClick={() => setRating(star)}
+                className={`text-5xl transition-all hover:scale-110 focus:outline-none ${star <= rating ? 'text-yellow-400 drop-shadow-[0_0_15px_rgba(250,204,21,0.6)]' : 'text-zinc-600'}`}
+              >
+                ★
+              </button>
+            ))}
+          </div>
+          <Button 
+            onClick={submitRating}
+            className="w-full bg-emerald-600 hover:bg-emerald-500 py-7 rounded-xl text-lg font-bold shadow-[0_0_20px_rgba(16,185,129,0.3)] transition-all"
+          >
+            Submit Rating & Close
+          </Button>
+        </DialogContent>
+      </Dialog>
+    )}
+    </>
   );
 }

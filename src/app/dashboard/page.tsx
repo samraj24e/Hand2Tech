@@ -164,6 +164,15 @@ export default function Dashboard() {
     loadDashboardData(user.id);
   };
 
+  const triggerWhatsAppNotification = (phone: string | null) => {
+    if (!phone) {
+      toast.error("This user hasn't provided a phone number yet.");
+      return;
+    }
+    const message = encodeURIComponent("Hand2Tech Alert! A VIT student has a new gig matching your skills. Reply YES to bid.");
+    window.open(`https://wa.me/${phone.replace(/[^0-9]/g, '')}?text=${message}`, "_blank");
+  };
+
   if (loading) return (
     <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
       <FontAwesomeIcon icon={faSpinner} className="animate-spin text-blue-500 text-4xl" />
@@ -258,6 +267,38 @@ export default function Dashboard() {
             </CardContent>
           </Card>
 
+          {/* My Projects */}
+          {projects.length > 0 && (
+            <div className="space-y-4">
+              <h3 className="text-xl font-bold text-zinc-100 flex items-center gap-2">
+                My Projects
+              </h3>
+              {projects.map(project => (
+                <Card key={project.id} className="glass-panel border-zinc-700/50 hover:border-blue-500/30 transition-all">
+                  <CardContent className="p-5">
+                    <div className="flex justify-between items-start">
+                      <h4 className="font-bold text-lg text-blue-400">{project.title}</h4>
+                      <span className="text-xs px-2 py-1 rounded-md bg-zinc-800 text-zinc-400 uppercase tracking-wider">{project.status}</span>
+                    </div>
+                    <p className="text-sm text-zinc-300 mt-2 line-clamp-2">{project.description}</p>
+                    
+                    {/* BOM Estimate */}
+                    {project.bom_estimate && Array.isArray(project.bom_estimate) && project.bom_estimate.length > 0 && (
+                      <div className="mt-4 pt-4 border-t border-zinc-800/80">
+                        <p className="text-xs font-semibold text-yellow-500/80 uppercase tracking-wider mb-2">Scrap-to-Proto BOM</p>
+                        <ul className="list-disc list-inside text-sm text-zinc-400 space-y-1">
+                          {project.bom_estimate.map((item: string, idx: number) => (
+                            <li key={idx}>{item}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+
           {/* Active Chats */}
           {activeConnections.length > 0 && (
             <Card className="glass-panel border-zinc-700/50">
@@ -306,6 +347,7 @@ export default function Dashboard() {
                     <div>
                       <h3 className="font-bold text-xl text-zinc-100 group-hover:text-emerald-400 transition-colors drop-shadow-md">{innovator.name}</h3>
                       <p className="text-sm font-medium text-emerald-500/80 capitalize tracking-wider mt-1">{innovator.role}</p>
+                      <p className="text-sm font-medium text-yellow-500/80 mt-1">★ {Number(innovator.rating || 5.0).toFixed(1)}</p>
                       {innovator.location && (
                         <p className="text-xs text-zinc-400 mt-2 flex items-center gap-1.5"><FontAwesomeIcon icon={faMapMarkerAlt} className="text-zinc-500" />{innovator.location}</p>
                       )}
@@ -327,12 +369,21 @@ export default function Dashboard() {
                     ))}
                   </div>
 
-                  <Button 
-                    onClick={() => handleRequestConnect(innovator.id)}
-                    className="w-full bg-zinc-800/80 hover:bg-emerald-600 text-zinc-100 transition-all duration-300 border border-zinc-700 group-hover:border-emerald-500/50 group-hover:shadow-[0_0_20px_rgba(16,185,129,0.3)] rounded-xl py-6"
-                  >
-                    <FontAwesomeIcon icon={faPlus} className="mr-2" /> Request to Connect
-                  </Button>
+                  <div className="flex flex-col gap-2">
+                    <Button 
+                      onClick={() => handleRequestConnect(innovator.id)}
+                      className="w-full bg-zinc-800/80 hover:bg-emerald-600 text-zinc-100 transition-all duration-300 border border-zinc-700 group-hover:border-emerald-500/50 group-hover:shadow-[0_0_20px_rgba(16,185,129,0.3)] rounded-xl py-6"
+                    >
+                      <FontAwesomeIcon icon={faPlus} className="mr-2" /> Request to Connect
+                    </Button>
+                    <Button 
+                      variant="outline"
+                      onClick={() => triggerWhatsAppNotification(innovator.phone)}
+                      className="w-full bg-green-600/20 hover:bg-green-600 text-green-400 hover:text-white transition-all duration-300 border border-green-700/50 rounded-xl py-6"
+                    >
+                      Post Project & Notify Laborer
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             ))}

@@ -19,6 +19,7 @@ export default function ProfilePage() {
   const [name, setName] = useState("");
   const [location, setLocation] = useState("");
   const [bio, setBio] = useState("");
+  const [phone, setPhone] = useState("");
   const [skills, setSkills] = useState<string[]>([]);
   const [newSkill, setNewSkill] = useState("");
   
@@ -41,6 +42,7 @@ export default function ProfilePage() {
       setName(profile.name || "");
       setLocation(profile.location || "");
       setBio(profile.bio || "");
+      setPhone(profile.phone || "");
       setSkills(profile.skills || []);
     }
     setLoading(false);
@@ -55,6 +57,7 @@ export default function ProfilePage() {
       name,
       location,
       bio,
+      phone,
       skills
     }).eq("id", user.id);
 
@@ -135,6 +138,16 @@ export default function ProfilePage() {
                   value={bio} 
                   onChange={e => setBio(e.target.value)} 
                   className="bg-zinc-950/60 border-zinc-700/60 min-h-[120px] focus-visible:ring-indigo-500 rounded-xl shadow-inner transition-all group-focus-within:border-indigo-500/50 p-4 resize-none" 
+                />
+              </div>
+
+              <div className="space-y-3 group">
+                <label className="text-sm font-semibold text-zinc-300 tracking-wide uppercase">Phone Number</label>
+                <Input 
+                  placeholder="e.g. +91 9876543210 (For WhatsApp Match Alerts)"
+                  value={phone} 
+                  onChange={e => setPhone(e.target.value)} 
+                  className="bg-zinc-950/60 border-zinc-700/60 focus-visible:ring-blue-500 py-6 rounded-xl shadow-inner transition-all group-focus-within:border-blue-500/50" 
                 />
               </div>
 

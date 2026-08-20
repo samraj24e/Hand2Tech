@@ -1,7 +1,7 @@
 -- Create custom types
 CREATE TYPE user_role AS ENUM ('student', 'laborer');
 CREATE TYPE project_status AS ENUM ('open', 'matched', 'closed');
-CREATE TYPE connection_status AS ENUM ('pending', 'accepted', 'rejected');
+CREATE TYPE connection_status AS ENUM ('pending', 'accepted', 'rejected', 'completed');
 
 -- Users table (Extends Supabase auth.users)
 CREATE TABLE public.users (
@@ -11,7 +11,9 @@ CREATE TABLE public.users (
   skills JSONB DEFAULT '[]'::jsonb,
   location TEXT,
   bio TEXT,
-  document_url TEXT
+  document_url TEXT,
+  rating NUMERIC DEFAULT 5.0,
+  phone TEXT
 );
 
 -- Projects table
@@ -23,6 +25,7 @@ CREATE TABLE public.projects (
   required_skills JSONB DEFAULT '[]'::jsonb,
   location TEXT,
   budget TEXT,
+  bom_estimate JSONB DEFAULT '[]'::jsonb,
   status project_status DEFAULT 'open'
 );
 
@@ -42,6 +45,7 @@ CREATE TABLE public.messages (
   connection_id UUID REFERENCES public.connections(id) ON DELETE CASCADE,
   sender_id UUID REFERENCES public.users(id) ON DELETE CASCADE,
   text TEXT NOT NULL,
+  translated_text TEXT,
   file_url TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );

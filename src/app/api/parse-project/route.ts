@@ -20,7 +20,7 @@ export async function POST(request: Request) {
       messages: [
         {
           role: 'system',
-          content: 'You are an AI that extracts data from project descriptions. Return a JSON object with: "required_skills" (string array), "location" (string, optional), and "budget" (string, optional).',
+          content: 'You are an AI that extracts data from project descriptions. Return a JSON object with: "required_skills" (string array), "location" (string, optional), "budget" (string, optional), AND "bom_estimate" (array of 3 strings of physical materials needed, noting which ones could be sourced from scrap).',
         },
         {
           role: 'user',
@@ -33,6 +33,7 @@ export async function POST(request: Request) {
     let required_skills: string[] = [];
     let location = null;
     let budget = null;
+    let bom_estimate: string[] = [];
     const content = completion.choices[0]?.message?.content;
     
     if (content) {
@@ -41,6 +42,7 @@ export async function POST(request: Request) {
            if (parsed.required_skills && Array.isArray(parsed.required_skills)) required_skills = parsed.required_skills;
            if (parsed.location) location = parsed.location;
            if (parsed.budget) budget = parsed.budget;
+           if (parsed.bom_estimate && Array.isArray(parsed.bom_estimate)) bom_estimate = parsed.bom_estimate;
        } catch (e) {
            console.error("Failed to parse JSON from Groq:", content);
        }
@@ -55,7 +57,8 @@ export async function POST(request: Request) {
         description,
         required_skills,
         location,
-        budget
+        budget,
+        bom_estimate
       })
       .select()
       .single();
