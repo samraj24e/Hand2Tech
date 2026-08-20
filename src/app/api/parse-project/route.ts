@@ -3,7 +3,7 @@ import OpenAI from 'openai';
 import { supabase } from '@/lib/supabase';
 
 const openai = new OpenAI({
-  apiKey: process.env.GROQ_API_KEY,
+  apiKey: process.env.GROQ_API_KEY || 'dummy_key_for_build',
   baseURL: 'https://api.groq.com/openai/v1',
 });
 
