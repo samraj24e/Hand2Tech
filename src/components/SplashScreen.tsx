@@ -2,7 +2,18 @@
 
 import { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faHandshake, faHand } from "@fortawesome/free-solid-svg-icons";
+import { faHandshake } from "@fortawesome/free-solid-svg-icons";
+
+const ReachingHand = ({ className, flipped = false }: { className?: string, flipped?: boolean }) => (
+  <svg viewBox="0 0 100 50" className={className} style={{ transform: flipped ? 'scaleX(-1)' : 'none' }}>
+    {/* Sleeve */}
+    <path d="M -10,5 L 30,5 L 30,40 L -10,40 Z" fill="currentColor" opacity="0.9" />
+    {/* Hand/Fingers */}
+    <path d="M 25,12 Q 60,12 70,18 Q 95,18 95,25 Q 95,33 70,33 L 25,33 Z" fill="currentColor" opacity="0.75" />
+    {/* Thumb */}
+    <path d="M 35,12 Q 55,-5 65,5 Q 75,15 60,18 Z" fill="currentColor" opacity="0.75" />
+  </svg>
+);
 
 export function SplashScreen({ onComplete }: { onComplete: () => void }) {
   const [isMet, setIsMet] = useState(false);
@@ -27,24 +38,24 @@ export function SplashScreen({ onComplete }: { onComplete: () => void }) {
       <div className="relative flex flex-col items-center justify-center w-full max-w-2xl">
         
         {/* Handshake Container */}
-        <div className="relative w-40 h-40 flex items-center justify-center">
+        <div className="relative w-64 h-40 flex items-center justify-center">
           
           {!isMet ? (
             <>
               {/* Approaching Left Hand */}
               <div 
-                className="absolute flex items-center justify-center"
+                className="absolute left-0 flex items-center justify-center w-32 h-32"
                 style={{ animation: 'slideLeftFull 1.5s cubic-bezier(0.16, 1, 0.3, 1) forwards' }}
               >
-                <FontAwesomeIcon icon={faHand} className="text-8xl text-blue-500 drop-shadow-md rotate-90" />
+                <ReachingHand className="w-full h-full text-blue-600 drop-shadow-md" />
               </div>
 
               {/* Approaching Right Hand */}
               <div 
-                className="absolute flex items-center justify-center"
+                className="absolute right-0 flex items-center justify-center w-32 h-32"
                 style={{ animation: 'slideRightFull 1.5s cubic-bezier(0.16, 1, 0.3, 1) forwards' }}
               >
-                <FontAwesomeIcon icon={faHand} className="text-8xl text-emerald-500 drop-shadow-md -rotate-90 scale-y-[-1]" />
+                <ReachingHand className="w-full h-full text-emerald-600 drop-shadow-md" flipped />
               </div>
             </>
           ) : (
@@ -53,7 +64,7 @@ export function SplashScreen({ onComplete }: { onComplete: () => void }) {
               className="absolute flex items-center justify-center"
               style={{ animation: 'nokiaShake 1.5s ease-in-out forwards' }}
             >
-              <FontAwesomeIcon icon={faHandshake} className="text-8xl text-blue-600 drop-shadow-md" />
+              <FontAwesomeIcon icon={faHandshake} className="text-[7rem] text-blue-600 drop-shadow-md" />
             </div>
           )}
 
