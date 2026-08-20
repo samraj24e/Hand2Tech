@@ -92,6 +92,20 @@ export default function AuthPage() {
     setIsSigningIn(false);
   };
 
+  const handleGoogleAuth = async () => {
+    setIsSigningIn(true);
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: typeof window !== "undefined" ? `${window.location.origin}/` : undefined,
+      },
+    });
+    if (error) {
+      alert("Error logging in with Google: " + error.message);
+      setIsSigningIn(false);
+    }
+  };
+
   const handleDocumentUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -192,6 +206,28 @@ export default function AuthPage() {
                 )}
               </Button>
             </form>
+
+            <div className="relative my-6">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t border-zinc-700/50"></span>
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-zinc-900/40 px-2 text-zinc-400 backdrop-blur-xl">Or</span>
+              </div>
+            </div>
+
+            <Button 
+              type="button" 
+              onClick={handleGoogleAuth}
+              disabled={isSigningIn}
+              className="relative overflow-hidden w-full py-7 text-lg bg-zinc-900 border border-zinc-700 hover:bg-zinc-800 text-zinc-100 font-bold transition-all rounded-xl shadow-lg mt-2 group"
+            >
+              <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/5 to-transparent translate-x-[-100%] group-hover:animate-[shimmer_1.5s_infinite]"></div>
+              <span className="relative z-10 flex items-center justify-center gap-3">
+                <FontAwesomeIcon icon={faGoogle} className="text-xl" />
+                Continue with Google
+              </span>
+            </Button>
           </CardContent>
         </Card>
       </div>
