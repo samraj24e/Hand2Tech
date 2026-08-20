@@ -18,7 +18,13 @@ export function SplashScreen({ onComplete }: { onComplete: () => void }) {
       <div className="relative flex flex-col items-center justify-center w-full max-w-2xl">
         
         {/* Handshake Container */}
-        <div className="relative w-40 h-40 flex items-center justify-center">
+        <div 
+          className="relative w-40 h-40 flex items-center justify-center"
+          style={{
+            animation: 'nokiaShake 1.5s ease-in-out forwards',
+            animationDelay: '1.5s' // Starts exactly when the hands meet
+          }}
+        >
           
           {/* Left Half (Student) */}
           <div 
@@ -28,7 +34,7 @@ export function SplashScreen({ onComplete }: { onComplete: () => void }) {
               animation: 'slideLeftHalf 1.5s cubic-bezier(0.16, 1, 0.3, 1) forwards' 
             }}
           >
-            <FontAwesomeIcon icon={faHandshake} className="text-8xl text-blue-500" />
+            <FontAwesomeIcon icon={faHandshake} className="text-8xl text-blue-500 drop-shadow-md" />
           </div>
 
           {/* Right Half (Craftsmen) */}
@@ -39,7 +45,7 @@ export function SplashScreen({ onComplete }: { onComplete: () => void }) {
               animation: 'slideRightHalf 1.5s cubic-bezier(0.16, 1, 0.3, 1) forwards' 
             }}
           >
-            <FontAwesomeIcon icon={faHandshake} className="text-8xl text-emerald-500" />
+            <FontAwesomeIcon icon={faHandshake} className="text-8xl text-emerald-500 drop-shadow-md" />
           </div>
 
         </div>
