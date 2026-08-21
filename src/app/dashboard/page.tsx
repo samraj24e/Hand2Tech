@@ -642,16 +642,38 @@ export default function Dashboard() {
                     <CardDescription className="text-lg text-slate-700 mt-4 whitespace-pre-wrap">{parseProjectMetadata(selectedProject.description).descriptionText}</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    {selectedProject.bom_estimate && Array.isArray(selectedProject.bom_estimate) && selectedProject.bom_estimate.length > 0 && (
-                      <div className="mt-4 p-5 bg-white/60 rounded-xl border border-slate-200">
-                        <p className="font-bold text-yellow-600 mb-3 uppercase tracking-widest text-sm flex items-center gap-2">
-                          <FontAwesomeIcon icon={faLaptopCode} /> Scrap-to-Proto BOM
-                        </p>
-                        <ul className="list-disc list-inside text-slate-700 space-y-2 font-medium">
-                          {selectedProject.bom_estimate.map((item: string, i: number) => <li key={i}>{item}</li>)}
-                        </ul>
-                      </div>
-                    )}
+                    {(() => {
+                      const projConnections = activeConnections.filter(c => c.project_id === selectedProject.id);
+                      if (projConnections.length > 0) {
+                        const conn = projConnections[0];
+                        return (
+                          <div className="mt-4 p-5 bg-white/60 rounded-xl border border-slate-200">
+                            <h4 className="font-bold text-slate-800 mb-2">Project Controls</h4>
+                            {conn.status === 'accepted' && (
+                              <Button onClick={() => handleInitiateClose(conn)} className="w-full sm:w-auto bg-blue-600 hover:bg-blue-500 text-white rounded-xl py-6 px-8">
+                                <FontAwesomeIcon icon={faCheck} className="mr-2" /> Mark Project as Completed (Generate Code)
+                              </Button>
+                            )}
+                            {conn.status === 'closing_pending' && (
+                              <Button onClick={() => setQrCodeConnection(conn)} className="w-full sm:w-auto bg-purple-600 hover:bg-purple-500 text-white rounded-xl py-6 px-8">
+                                Show Verification PIN / QR
+                              </Button>
+                            )}
+                            {conn.status === 'completed_unreviewed' && (
+                              <Button onClick={() => setReviewingConnection(conn)} className="w-full sm:w-auto bg-amber-500 hover:bg-amber-400 text-white rounded-xl py-6 px-8 animate-pulse">
+                                <FontAwesomeIcon icon={faStar} className="mr-2" /> Leave Review for Worker
+                              </Button>
+                            )}
+                            {conn.status === 'completed' && (
+                              <p className="text-emerald-600 font-bold bg-emerald-50 px-4 py-2 rounded-lg inline-block">
+                                <FontAwesomeIcon icon={faCheck} className="mr-2" /> Project Completed
+                              </p>
+                            )}
+                          </div>
+                        );
+                      }
+                      return null;
+                    })()}
                   </CardContent>
                 </Card>
 
