@@ -9,7 +9,7 @@ import { parseProfileMetadata } from "@/lib/utils";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlus, faSpinner, faUsers, faBell, faCheck, faTimes, faComments, faMapMarkerAlt, faUserCircle } from "@fortawesome/free-solid-svg-icons";
+import { faPlus, faSpinner, faUsers, faBell, faCheck, faTimes, faComments, faMapMarkerAlt, faUserCircle, faHammer, faLaptopCode } from "@fortawesome/free-solid-svg-icons";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { ChatModal } from "@/components/ChatModal";
 import { toast } from "sonner";
@@ -256,6 +256,25 @@ export default function Dashboard() {
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 py-12">
+        {/* Dashboard Title Card */}
+        <div className="mb-8">
+          <Card className="bg-blue-600 border-none shadow-md rounded-2xl overflow-hidden">
+            <CardContent className="p-6 sm:p-8 flex items-center justify-between">
+              <div>
+                <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+                  {isLaborer ? "Skilled Craftsman Dashboard" : "Tech Innovator Dashboard"}
+                </h1>
+                <p className="text-blue-100 mt-2 font-medium">
+                  {isLaborer ? "Find gigs and manage your active collaborations." : "Manage your projects and connect with skilled craftsmen."}
+                </p>
+              </div>
+              <div className="hidden sm:flex w-16 h-16 rounded-full bg-white/20 items-center justify-center">
+                <FontAwesomeIcon icon={isLaborer ? faHammer : faLaptopCode} className="text-3xl text-white drop-shadow-md" />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
         {/* KPI Section */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
           {isLaborer ? (
