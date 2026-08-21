@@ -38,7 +38,9 @@ export function WorkerProfileModal({ worker, onClose, onRequestConnect }: Worker
           <div className="flex justify-between items-end mb-6">
             <div>
               <h2 className="text-3xl font-extrabold text-slate-900">{worker.name}</h2>
-              <p className="text-lg text-emerald-600 font-semibold capitalize tracking-wide">{worker.role}</p>
+              <p className="text-lg text-emerald-600 font-semibold capitalize tracking-wide">
+                {worker.role} {metadata.specialty && <span className="text-slate-500 font-medium ml-2 text-sm px-3 py-1 bg-slate-100 rounded-full">{metadata.specialty}</span>}
+              </p>
             </div>
             <div className="text-right">
               <div className="text-2xl font-black text-amber-500">
@@ -108,6 +110,27 @@ export function WorkerProfileModal({ worker, onClose, onRequestConnect }: Worker
                     </Button>
                   </a>
                 )}
+              </div>
+            )}
+
+            {/* Reviews */}
+            {metadata.reviews && metadata.reviews.length > 0 && (
+              <div className="pt-6 border-t border-slate-100">
+                <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4">Client Reviews</h3>
+                <div className="space-y-4">
+                  {metadata.reviews.map((rev, i) => (
+                    <div key={i} className="p-4 bg-slate-50 rounded-xl border border-slate-100">
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="font-bold text-slate-800">{rev.reviewer}</span>
+                        <div className="text-amber-500 font-bold text-sm">
+                          {Array(rev.rating).fill("★").join("")}{Array(5 - rev.rating).fill("☆").join("")}
+                        </div>
+                      </div>
+                      <p className="text-slate-600 text-sm italic">"{rev.text}"</p>
+                      {rev.date && <p className="text-xs text-slate-400 mt-2">{new Date(rev.date).toLocaleDateString()}</p>}
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
 

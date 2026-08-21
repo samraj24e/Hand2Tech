@@ -17,6 +17,8 @@ export interface InnovatorMetadata {
   profile_image?: string;
   resume_link?: string;
   previous_works?: string;
+  specialty?: string;
+  reviews?: { reviewer: string; rating: number; text: string; date: string }[];
 }
 
 export function parseProfileMetadata(bioString: string | null | undefined): InnovatorMetadata {
@@ -35,7 +37,9 @@ export function parseProfileMetadata(bioString: string | null | undefined): Inno
         organization_gst: data.organization_gst || "",
         profile_image: data.profile_image || "",
         resume_link: data.resume_link || "",
-        previous_works: data.previous_works || ""
+        previous_works: data.previous_works || "",
+        specialty: data.specialty || "",
+        reviews: Array.isArray(data.reviews) ? data.reviews : []
       };
     }
   } catch (e) {

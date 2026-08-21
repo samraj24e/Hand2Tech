@@ -69,6 +69,11 @@ export default function Dashboard() {
   const [selectedWorkerProfile, setSelectedWorkerProfile] = useState<any>(null);
   const [selectedProject, setSelectedProject] = useState<any>(null);
   
+  const [reviewingConnection, setReviewingConnection] = useState<any>(null);
+  const [reviewRating, setReviewRating] = useState(5);
+  const [reviewText, setReviewText] = useState("");
+  const [isSubmittingReview, setIsSubmittingReview] = useState(false);
+  
   const router = useRouter();
 
   useEffect(() => {
@@ -251,18 +256,52 @@ export default function Dashboard() {
       project_id: project.id,
       requester_id: user.id,
       owner_id: targetUserId // Technically the other person is the "target". Wait, schema says owner_id is project owner. So owner_id is me.
-      // Wait, schema: Connections: project_id, requester_id, owner_id. 
-      // If I request them to join MY project, I am the owner, they are requester? No, let's say they receive the notification.
-      // Let's modify: if I find them, I request them. 
-    });
-    // In our simplified MVP, we just insert a connection where we are the requester, and they are the owner, but actually we own the project.
     // Let's just insert: requester_id: me, owner_id: targetUserId, project_id: my project.
     await supabase.from("connections").insert({
         project_id: project.id,
         requester_id: user.id,
-        owner_id: targetUserId
+        owner_id: targetUserId,
+        status: 'pending'
     });
-    alert("Connection requested!");
+    toast.success("Request sent!");
+  };
+
+  const handleSubmitReview = async () => {
+    if (!reviewingConnection) return;
+    setIsSubmittingReview(true);
+    
+    // Find the worker ID
+    const workerId = reviewingConnection.requester_id === user.id ? reviewingConnection.owner_id : reviewingConnection.requester_id;
+    
+    try {
+      const res = await fetch('/api/submit-review', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          workerId,
+          reviewerName: userProfile?.name || 'Anonymous Innovator',
+          rating: reviewRating,
+          text: reviewText
+        })
+      });
+      const data = await res.json();
+      
+      if (data.success) {
+        toast.success("Review submitted! The connection is now completed.");
+        // Mark connection as completed
+        await supabase.from("connections").update({ status: 'completed' }).eq('id', reviewingConnection.id);
+        setActiveConnections(prev => prev.filter(c => c.id !== reviewingConnection.id));
+        setReviewingConnection(null);
+        setReviewText("");
+        setReviewRating(5);
+      } else {
+        toast.error("Failed to submit review: " + data.error);
+      }
+    } catch (e) {
+      toast.error("Error submitting review");
+    } finally {
+      setIsSubmittingReview(false);
+    }
   };
 
   const handleAccept = async (connId: string) => {
@@ -598,9 +637,14 @@ export default function Dashboard() {
                               {conn.requester_id === user?.id ? conn.owner?.name || "Unknown User" : conn.requester?.name || "Unknown User"}
                             </span>
                           </div>
-                          <Button onClick={() => setActiveChatConnection(conn)} className="bg-emerald-600 rounded-xl px-6">
-                            <FontAwesomeIcon icon={faComments} className="mr-2" /> Chat
-                          </Button>
+                          <div className="flex gap-2">
+                            <Button onClick={() => setReviewingConnection(conn)} variant="outline" className="text-blue-600 border-blue-200 hover:bg-blue-50 rounded-xl px-4">
+                              <FontAwesomeIcon icon={faCheck} className="mr-2" /> Complete & Review
+                            </Button>
+                            <Button onClick={() => setActiveChatConnection(conn)} className="bg-emerald-600 rounded-xl px-6">
+                              <FontAwesomeIcon icon={faComments} className="mr-2" /> Chat
+                            </Button>
+                          </div>
                         </div>
                       ))}
                     </CardContent>
@@ -689,6 +733,41 @@ export default function Dashboard() {
              handleRequestConnect(id);
           }}
         />
+      )}
+
+      {/* Review Modal */}
+      {reviewingConnection && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+          <div className="bg-white rounded-3xl w-full max-w-md p-6 shadow-2xl relative animate-in slide-in-from-bottom-8">
+            <button onClick={() => setReviewingConnection(null)} className="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
+              <FontAwesomeIcon icon={faTimes} className="text-xl" />
+            </button>
+            <h2 className="text-2xl font-bold text-slate-900 mb-2">Complete & Review</h2>
+            <p className="text-sm text-slate-600 mb-6">Rate this craftsman's work on this project and leave a public review.</p>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm font-semibold text-slate-700 block mb-2">Rating ({reviewRating}/5)</label>
+                <div className="flex gap-2">
+                  {[1,2,3,4,5].map(star => (
+                    <button key={star} type="button" onClick={() => setReviewRating(star)} className={`text-3xl ${reviewRating >= star ? 'text-amber-500' : 'text-slate-200'} hover:scale-110 transition-transform`}>
+                      ★
+                    </button>
+                  ))}
+                </div>
+              </div>
+              
+              <div>
+                <label className="text-sm font-semibold text-slate-700 block mb-2">Review Text</label>
+                <Textarea placeholder="Share your experience working with them..." value={reviewText} onChange={e => setReviewText(e.target.value)} className="bg-slate-50 border-slate-200 min-h-[100px]" />
+              </div>
+              
+              <Button onClick={handleSubmitReview} disabled={isSubmittingReview} className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-6 rounded-xl mt-4">
+                {isSubmittingReview ? <FontAwesomeIcon icon={faSpinner} className="animate-spin" /> : "Submit Review & Mark Completed"}
+              </Button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

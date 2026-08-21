@@ -226,6 +226,11 @@ export default function ProfilePage() {
                   <h4 className="text-lg font-bold text-slate-800 capitalize border-b border-slate-200 pb-2">Craftsman Details</h4>
                   
                   <div className="space-y-3 group">
+                    <label className="text-sm font-semibold text-slate-700 tracking-wide uppercase">Specialty</label>
+                    <Input name="specialty" value={metadata.specialty || ""} onChange={handleMetadataChange} placeholder="e.g. Welding, Carpenter, Electrician" className="bg-white border-slate-300 py-6 rounded-xl" />
+                  </div>
+                  
+                  <div className="space-y-3 group">
                     <label className="text-sm font-semibold text-slate-700 tracking-wide uppercase">Years of Experience</label>
                     <Input name="years_of_experience" value={metadata.years_of_experience || ""} onChange={handleMetadataChange} placeholder="e.g. 10 years welding" className="bg-white border-slate-300 py-6 rounded-xl" />
                   </div>
