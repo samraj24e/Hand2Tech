@@ -9,7 +9,7 @@ const openai = new OpenAI({
 
 export async function POST(request: Request) {
   try {
-    const { title, descriptionText, duration, closing_time, distance_limit, project_phase, userId } = await request.json();
+    const { title, descriptionText, domain, closing_time, distance_limit, project_phase, userId } = await request.json();
 
     if (!title || !descriptionText || !userId) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
@@ -30,7 +30,7 @@ export async function POST(request: Request) {
           },
           {
             role: 'user',
-            content: `Extract info for this project:\nTitle: ${title}\nDescription: ${descriptionText}\nDuration: ${duration}\nPhase: ${project_phase}`,
+            content: `Extract info for this project:\nTitle: ${title}\nDescription: ${descriptionText}\nDomain: ${domain}\nPhase: ${project_phase}`,
           },
         ],
         response_format: { type: "json_object" },
@@ -57,7 +57,7 @@ export async function POST(request: Request) {
 
     const description = JSON.stringify({
       descriptionText,
-      duration,
+      domain,
       closing_time,
       distance_limit,
       budget,

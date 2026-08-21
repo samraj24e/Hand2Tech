@@ -14,17 +14,49 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { ChatModal } from "@/components/ChatModal";
 import { toast } from "sonner";
 
+const ProjectCountdown = ({ dateStr }: { dateStr: string }) => {
+  const [timeLeft, setTimeLeft] = useState("");
+  const [isPast, setIsPast] = useState(false);
+
+  useEffect(() => {
+    const updateCountdown = () => {
+      const target = new Date(dateStr).getTime();
+      const now = new Date().getTime();
+      const diff = target - now;
+      
+      setIsPast(diff < 0);
+      const absDiff = Math.abs(diff);
+      const days = Math.floor(absDiff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((absDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const mins = Math.floor((absDiff % (1000 * 60 * 60)) / (1000 * 60));
+      const secs = Math.floor((absDiff % (1000 * 60)) / 1000);
+      
+      setTimeLeft(`${days}d ${hours}h ${mins}m ${secs}s`);
+    };
+    
+    updateCountdown();
+    const interval = setInterval(updateCountdown, 1000);
+    return () => clearInterval(interval);
+  }, [dateStr]);
+
+  // The user requested green color specifically for countdown!
+  return (
+    <span className={`text-xs font-semibold px-3 py-1 rounded-full bg-green-100 text-green-700`}>
+      {isPast ? "Overdue by: " : "Closes in: "} {timeLeft}
+    </span>
+  );
+};
+
 export default function Dashboard() {
   const [user, setUser] = useState<any>(null);
   const [userProfile, setUserProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [projects, setProjects] = useState<any[]>([]);
-  
   const [newProjectTitle, setNewProjectTitle] = useState("");
   const [newProjectDesc, setNewProjectDesc] = useState("");
-  const [newProjectDuration, setNewProjectDuration] = useState("");
+  const [newProjectDomain, setNewProjectDomain] = useState("");
   const [newProjectClosingTime, setNewProjectClosingTime] = useState("");
-  const [newProjectDistanceLimit, setNewProjectDistanceLimit] = useState("any");
+  const [newProjectDistanceLimit, setNewProjectDistanceLimit] = useState("");
   const [newProjectPhase, setNewProjectPhase] = useState("Idea");
   const [isCreatingProject, setIsCreatingProject] = useState(false);
   
@@ -89,11 +121,16 @@ export default function Dashboard() {
 
       // Filter by Proximity (Distance Limit)
       const pMetadata = parseProjectMetadata(project.description);
-      if (pMetadata.distance_limit === "exact" && project.location) {
-        finalMatches = finalMatches.filter((m: any) => m.location?.toLowerCase() === project.location?.toLowerCase());
-      } else if (pMetadata.distance_limit === "50km" && project.location) {
-        // Mock distance filter for MVP: prioritize exact match or add random fuzz
-        // For now, let's keep all but sort exact matches first
+      const limit = parseInt(pMetadata.distance_limit || "0");
+      
+      finalMatches = finalMatches.map((m: any) => {
+        // Mock distance calculation based on user IDs so it's consistent
+        const mockDist = Math.abs((m.id.charCodeAt(0) * project.id.charCodeAt(0)) % 150);
+        return { ...m, distance: mockDist };
+      });
+
+      if (limit > 0) {
+        finalMatches = finalMatches.filter((m: any) => m.distance <= limit);
       }
 
       // Sort by Match Score, then Rating
@@ -167,7 +204,7 @@ export default function Dashboard() {
         body: JSON.stringify({
           title: newProjectTitle,
           descriptionText: newProjectDesc,
-          duration: newProjectDuration,
+          domain: newProjectDomain,
           closing_time: newProjectClosingTime,
           distance_limit: newProjectDistanceLimit,
           project_phase: newProjectPhase,
@@ -460,18 +497,16 @@ export default function Dashboard() {
                       <Textarea placeholder="Describe the physical labor needed, materials required, and the goal of the project..." value={newProjectDesc} onChange={e => setNewProjectDesc(e.target.value)} className="bg-white min-h-[140px] p-4 rounded-xl" required />
                       
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <Input placeholder="Duration (e.g. 2 weeks)" value={newProjectDuration} onChange={e => setNewProjectDuration(e.target.value)} className="bg-white py-6 rounded-xl" />
+                        <Input placeholder="Domain (e.g. Health, Agri, Finance)" value={newProjectDomain} onChange={e => setNewProjectDomain(e.target.value)} className="bg-white py-6 rounded-xl" />
                         <Input placeholder="Closing Date (e.g. 2026-12-01)" type="date" value={newProjectClosingTime} onChange={e => setNewProjectClosingTime(e.target.value)} className="bg-white py-6 rounded-xl" />
                         
-                        <select 
+                        <Input 
+                          type="number" 
+                          placeholder="Max Distance (km)" 
                           value={newProjectDistanceLimit} 
                           onChange={e => setNewProjectDistanceLimit(e.target.value)} 
-                          className="bg-white py-3 px-4 rounded-xl border border-slate-300 w-full"
-                        >
-                          <option value="any">Any Distance</option>
-                          <option value="50km">Within 50km</option>
-                          <option value="exact">Exact Location Only</option>
-                        </select>
+                          className="bg-white py-6 rounded-xl"
+                        />
                         
                         <select 
                           value={newProjectPhase} 
@@ -514,14 +549,17 @@ export default function Dashboard() {
                     </div>
                     
                     <div className="flex flex-wrap gap-3 mt-3">
-                      {parseProjectMetadata(selectedProject.description).duration && (
-                        <span className="text-xs font-semibold bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full">Duration: {parseProjectMetadata(selectedProject.description).duration}</span>
+                      {parseProjectMetadata(selectedProject.description).domain && (
+                        <span className="text-xs font-semibold bg-blue-100 text-blue-800 px-3 py-1 rounded-full">Domain: {parseProjectMetadata(selectedProject.description).domain}</span>
                       )}
-                      {parseProjectMetadata(selectedProject.description).closing_time && (
-                        <span className="text-xs font-semibold bg-rose-100 text-rose-800 px-3 py-1 rounded-full">Deadline: {parseProjectMetadata(selectedProject.description).closing_time}</span>
+                      {parseProjectMetadata(selectedProject.description).distance_limit && (
+                        <span className="text-xs font-semibold bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full">Range: {parseProjectMetadata(selectedProject.description).distance_limit} km</span>
                       )}
                       {parseProjectMetadata(selectedProject.description).project_phase && (
                         <span className="text-xs font-semibold bg-purple-100 text-purple-800 px-3 py-1 rounded-full">Phase: {parseProjectMetadata(selectedProject.description).project_phase}</span>
+                      )}
+                      {parseProjectMetadata(selectedProject.description).closing_time && (
+                        <ProjectCountdown dateStr={parseProjectMetadata(selectedProject.description).closing_time!} />
                       )}
                     </div>
 
@@ -587,7 +625,12 @@ export default function Dashboard() {
                                 <span className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded-full">{innovator.matchScore}% Match</span>
                               )}
                             </h4>
-                            <p className="text-sm font-medium text-emerald-600 mt-1 tracking-wider">★ {Number(innovator.rating || 5).toFixed(1)}</p>
+                            <div className="flex items-center gap-3 mt-1">
+                              <p className="text-sm font-medium text-emerald-600 tracking-wider">★ {Number(innovator.rating || 5).toFixed(1)}</p>
+                              {innovator.distance !== undefined && (
+                                <p className="text-sm font-medium text-slate-500">• {innovator.distance} km away</p>
+                              )}
+                            </div>
                             {innovator.bio && <p className="text-sm text-slate-600 mt-3 line-clamp-2">{parseProfileMetadata(innovator.bio).bioText || parseProfileMetadata(innovator.bio).domain_interests}</p>}
                             <div className="mt-6 flex flex-col gap-2">
                               <Button onClick={() => handleRequestConnect(innovator.id)} className="w-full bg-slate-100/80 hover:bg-emerald-600 text-slate-900 border border-slate-300 hover:border-emerald-500 rounded-xl py-6 transition-all group">
