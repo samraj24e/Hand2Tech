@@ -103,6 +103,15 @@ export default function Dashboard() {
               loadDashboardData(session.user.id);
             }
           })
+          .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'connections' }, payload => {
+            if (payload.new.owner_id === session.user.id && payload.new.status === 'pending') {
+              toast.success("Connection request renewed!");
+              loadDashboardData(session.user.id);
+            } else if (payload.new.requester_id === session.user.id || payload.new.owner_id === session.user.id) {
+               // Also catch if the other party accepts it, etc.
+               loadDashboardData(session.user.id);
+            }
+          })
           .subscribe();
       }
     });
@@ -189,10 +198,11 @@ export default function Dashboard() {
     }
 
     // 4. Get pending requests to my projects
-    const { data: reqs } = await supabase.from("connections")
+    const { data: reqs, error: reqsError } = await supabase.from("connections")
       .select("*, requester:users!requester_id(*), project:projects(*)")
       .eq("owner_id", userId)
       .eq("status", "pending");
+    if (reqsError) console.error("Error fetching pending requests:", reqsError);
     setPendingRequests(reqs || []);
 
     // 5. Get active connections (either I am requester or owner)
@@ -254,23 +264,43 @@ export default function Dashboard() {
   };
 
   const handleRequestConnect = async (targetUserId: string) => {
-    // Connect to the specific project they are currently viewing, or fallback to any open one
     const projectToConnect = selectedProject || projects.find(p => p.status === 'open');
     if (!projectToConnect) {
       toast.error("Please select or create a project first!");
       return;
     }
     
-    const { error } = await supabase.from("connections").insert({
-        project_id: projectToConnect.id,
-        requester_id: user.id,
-        owner_id: targetUserId,
-        status: 'pending'
-    });
+    // Check if connection already exists to allow prototyping the flow multiple times
+    const { data: existing } = await supabase.from("connections")
+      .select("id, status")
+      .eq("project_id", projectToConnect.id)
+      .eq("requester_id", user.id)
+      .eq("owner_id", targetUserId)
+      .maybeSingle();
 
-    if (error) {
-      // It might fail if a unique constraint exists. Let's ignore it for MVP or just toast success anyway to let them prototype.
-      console.error(error);
+    if (existing) {
+      // Reset the existing connection to pending so they can prototype the flow again!
+      const { error: updateError } = await supabase.from("connections")
+        .update({ status: 'pending' })
+        .eq("id", existing.id);
+        
+      if (updateError) {
+        toast.error("Failed to send request: " + updateError.message);
+        return;
+      }
+    } else {
+      // Insert new connection
+      const { error: insertError } = await supabase.from("connections").insert({
+          project_id: projectToConnect.id,
+          requester_id: user.id,
+          owner_id: targetUserId,
+          status: 'pending'
+      });
+
+      if (insertError) {
+        toast.error("Failed to send request: " + insertError.message);
+        return;
+      }
     }
     
     toast.success(`Request sent for project: ${projectToConnect.title}`);
