@@ -74,7 +74,7 @@ export default function Dashboard() {
       if (finalMatches.length === 0) {
         const { data: backup } = await supabase.from("users")
           .select("*")
-          .eq("role", "Laborer")
+          .eq("role", "laborer")
           .neq("id", user?.id)
           .order("rating", { ascending: false })
           .limit(6);
@@ -201,11 +201,7 @@ export default function Dashboard() {
     window.open(`https://wa.me/${phone.replace(/[^0-9]/g, '')}?text=${message}`, "_blank");
   };
 
-  if (loading) return (
-    <div className="min-h-screen relative font-sans flex items-center justify-center">
-      <FontAwesomeIcon icon={faSpinner} className="animate-spin text-blue-500 text-4xl" />
-    </div>
-  );
+  if (loading) return <div className="min-h-screen bg-slate-50 relative font-sans" />;
 
   const isLaborer = userProfile?.role === 'laborer';
 
@@ -327,9 +323,13 @@ export default function Dashboard() {
                     {projects.map(project => (
                       <Card 
                         key={project.id} 
+                        onClick={() => {
+                          setSelectedProject(project);
+                          fetchMatchesForProject(project, userProfile?.location);
+                        }}
                         className="glass-panel cursor-pointer hover:border-blue-500 hover:shadow-2xl transition-all hover:-translate-y-1 overflow-hidden"
                       >
-                        <div onClick={() => { setSelectedProject(project); fetchMatchesForProject(project, userProfile?.location); }} className="w-full h-full p-6">
+                        <div className="w-full h-full p-6">
                           <h4 className="font-bold text-xl text-blue-600 mb-2 line-clamp-1">{project.title}</h4>
                           <span className="text-xs px-2 py-1 rounded-md bg-slate-200 text-slate-700 uppercase">{project.status}</span>
                           <p className="text-sm text-slate-600 mt-4 line-clamp-2">{project.description}</p>

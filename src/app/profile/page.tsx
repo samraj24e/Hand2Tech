@@ -80,11 +80,7 @@ export default function ProfilePage() {
     setSkills(skills.filter(s => s !== skillToRemove));
   };
 
-  if (loading) return (
-    <div className="min-h-screen relative flex items-center justify-center">
-      <FontAwesomeIcon icon={faSpinner} className="animate-spin text-blue-500 text-4xl" />
-    </div>
-  );
+  if (loading) return <div className="min-h-screen relative" />;
 
   return (
     <div className="min-h-screen font-sans p-4 lg:p-12 relative overflow-hidden">
