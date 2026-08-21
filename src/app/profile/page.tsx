@@ -140,6 +140,23 @@ export default function ProfilePage() {
                 <Input placeholder="e.g. +91 9876543210 (For WhatsApp Match Alerts)" value={phone} onChange={e => setPhone(e.target.value)} className="bg-white border-slate-300 focus-visible:ring-blue-500 py-6 rounded-xl shadow-inner transition-all" />
               </div>
 
+              {user?.role === 'student' && (
+                <div className="space-y-3 group">
+                  <label className="text-sm font-semibold text-slate-700 tracking-wide uppercase">Innovator Category</label>
+                  <select 
+                    name="category"
+                    value={metadata.category || ""}
+                    onChange={(e) => setMetadata(prev => ({ ...prev, category: e.target.value as any }))}
+                    className="w-full bg-white border border-slate-300 focus-visible:ring-blue-500 py-4 px-4 rounded-xl shadow-inner transition-all"
+                  >
+                    <option value="" disabled>Select your category...</option>
+                    <option value="student">Student</option>
+                    <option value="self_finance">Self Finance</option>
+                    <option value="organization">Organization</option>
+                  </select>
+                </div>
+              )}
+
               {cat && (
                 <div className="p-6 border border-slate-200 rounded-2xl bg-slate-50 space-y-6">
                   <h4 className="text-lg font-bold text-slate-800 capitalize border-b border-slate-200 pb-2">{cat.replace('_', ' ')} Details</h4>
