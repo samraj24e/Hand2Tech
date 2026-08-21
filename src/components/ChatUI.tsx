@@ -56,8 +56,14 @@ export function ChatUI({ connection, currentUser, onClose }: { connection: any, 
       })
       .subscribe();
 
+    // Fallback polling every 3 seconds in case Realtime replication is off for this table
+    const pollInterval = setInterval(() => {
+      fetchData();
+    }, 3000);
+
     return () => {
       supabase.removeChannel(channel);
+      clearInterval(pollInterval);
     };
   }, [connection]);
 
@@ -96,6 +102,16 @@ export function ChatUI({ connection, currentUser, onClose }: { connection: any, 
     if (insertError) {
       console.error("Message insert error:", insertError);
       toast.error(`Failed to send message: ${insertError.message}`);
+    } else {
+      // Optimistic update in case Realtime is disabled on the table
+      setMessages(prev => [...prev, {
+        id: Date.now().toString(),
+        connection_id: connection.id,
+        sender_id: currentUser.id,
+        text: msg,
+        translated_text,
+        created_at: new Date().toISOString()
+      }]);
     }
   };
 

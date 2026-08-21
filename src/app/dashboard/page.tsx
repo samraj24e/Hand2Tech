@@ -289,9 +289,12 @@ export default function Dashboard() {
         .eq("id", existing.id);
         
       if (updateError) {
-        toast.error("Failed to send request: " + updateError.message);
+        console.error("Update connection error:", updateError);
+        toast.error("Failed to renew connection");
         return;
       }
+        
+      toast.success(`Request sent for project: ${projectToConnect.title}`);
     } else {
       // Insert new connection
       const { error: insertError } = await supabase.from("connections").insert({
@@ -569,10 +572,10 @@ export default function Dashboard() {
                     <div key={conn.id} className="p-5 rounded-2xl bg-white/50 border border-slate-300 flex justify-between items-center hover:border-zinc-600 transition-colors">
                       <div>
                         <div className="font-bold text-emerald-600 flex items-center gap-2">
-                          {conn.project.title}
+                          {conn.project?.title || "Unknown Project"}
                           {conn.status === 'pending' && <span className="text-[10px] bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full uppercase tracking-wider">Pending</span>}
                         </div>
-                        <div className="text-sm text-slate-600 mt-1">{conn.requester.name}</div>
+                        <div className="text-sm text-slate-600 mt-1">{conn.requester?.name || "Unknown"}</div>
                       </div>
                       <div className="flex gap-2">
                         {conn.status === 'closing_pending' && (
@@ -621,12 +624,12 @@ export default function Dashboard() {
                               <CardContent className="p-5 flex flex-col h-full justify-between gap-4">
                                 <div>
                                   <div className="font-bold text-emerald-600 flex items-center gap-2">
-                                    {conn.project.title}
+                                    {conn.project?.title || "Unknown Project"}
                                     {conn.status === 'pending' && <span className="text-[10px] bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full uppercase tracking-wider">Pending</span>}
                                   </div>
                                   <div className="text-sm text-slate-600 mt-2 font-medium flex items-center gap-2">
                                     <FontAwesomeIcon icon={faUserCircle} className="text-slate-400" />
-                                    {conn.requester_id === user?.id ? conn.owner?.name || "Unknown" : conn.requester?.name || "Unknown"}
+                                    {conn.requester_id === user?.id ? (conn.owner?.name || "Unknown") : (conn.requester?.name || "Unknown")}
                                   </div>
                                 </div>
                                 <div className="flex gap-2 mt-2">
