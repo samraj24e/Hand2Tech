@@ -110,7 +110,7 @@ export default function Dashboard() {
     setIsCreatingProject(true);
 
     try {
-      await fetch('/api/parse-project', {
+      const res = await fetch('/api/parse-project', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -119,11 +119,22 @@ export default function Dashboard() {
           userId: user.id
         })
       });
-      setNewProjectTitle("");
-      setNewProjectDesc("");
-      loadDashboardData(user.id);
+      
+      const data = await res.json();
+      if (data.error) {
+        console.error(data.error);
+        alert("Failed to post project: " + data.error);
+      } else if (data.project) {
+        setNewProjectTitle("");
+        setNewProjectDesc("");
+        // Prepend the new project to state to instantly show it
+        setProjects(prev => [data.project, ...prev]);
+        // Also reload other dashboard data if needed
+        loadDashboardData(user.id);
+      }
     } catch (err) {
       console.error(err);
+      alert("Error posting project");
     } finally {
       setIsCreatingProject(false);
     }
