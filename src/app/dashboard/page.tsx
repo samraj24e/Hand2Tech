@@ -208,7 +208,7 @@ export default function Dashboard() {
     // 5. Get active connections (either I am requester or owner)
     const { data: active } = await supabase.from("connections")
       .select("*, requester:users!requester_id(*), owner:users!owner_id(*), project:projects(*)")
-      .in("status", ["accepted", "closing_pending", "completed_unreviewed"])
+      .in("status", ["pending", "accepted", "closing_pending", "completed_unreviewed"])
       .or(`owner_id.eq.${userId},requester_id.eq.${userId}`);
     setActiveConnections(active || []);
 
@@ -560,7 +560,13 @@ export default function Dashboard() {
                 <CardContent className="space-y-4">
                   {activeConnections.map(conn => (
                     <div key={conn.id} className="p-5 rounded-2xl bg-white/50 border border-slate-300 flex justify-between items-center hover:border-zinc-600 transition-colors">
-                      <div><div className="font-bold text-emerald-600">{conn.project.title}</div><div className="text-sm text-slate-600 mt-1">{conn.requester.name}</div></div>
+                      <div>
+                        <div className="font-bold text-emerald-600 flex items-center gap-2">
+                          {conn.project.title}
+                          {conn.status === 'pending' && <span className="text-[10px] bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full uppercase tracking-wider">Pending</span>}
+                        </div>
+                        <div className="text-sm text-slate-600 mt-1">{conn.requester.name}</div>
+                      </div>
                       <div className="flex gap-2">
                         {conn.status === 'closing_pending' && (
                           <Button onClick={() => setVerifyClosingConnection(conn)} className="bg-purple-600 hover:bg-purple-500 rounded-xl px-4 animate-pulse">
@@ -755,6 +761,7 @@ export default function Dashboard() {
                             <span className="font-bold text-slate-800 flex items-center gap-2">
                               <FontAwesomeIcon icon={faUserCircle} className="text-slate-400 text-xl" /> 
                               {conn.requester_id === user?.id ? conn.owner?.name || "Unknown User" : conn.requester?.name || "Unknown User"}
+                              {conn.status === 'pending' && <span className="ml-2 text-[10px] bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full uppercase tracking-wider">Pending</span>}
                             </span>
                           </div>
                           <div className="flex gap-2">
