@@ -158,10 +158,7 @@ export default function AuthPage() {
   if (!user) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-transparent p-4 relative overflow-hidden font-sans">
-        {/* Animated abstract background blobs */}
-        <div className="absolute top-0 left-[-10%] w-96 h-96 bg-blue-600/40 rounded-full blur-3xl animate-blob"></div>
-        <div className="absolute top-0 right-[-10%] w-96 h-96 bg-emerald-600/30 rounded-full blur-3xl animate-blob animation-delay-2000"></div>
-        <div className="absolute -bottom-8 left-20 w-96 h-96 bg-indigo-600/30 rounded-full blur-3xl animate-blob animation-delay-4000"></div>
+        {/* Animated abstract background blobs removed */}
 
         <Card className="w-full max-w-md glass-panel-heavy text-slate-900 relative z-10 transition-transform duration-500 hover:scale-[1.01]">
           <CardHeader className="text-center space-y-4 pt-8">
@@ -265,8 +262,7 @@ export default function AuthPage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-transparent p-4 relative overflow-hidden font-sans">
-       {/* Background */}
-       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-3xl h-[500px] bg-gradient-to-tr from-blue-600/30 to-emerald-600/30 rounded-full blur-[120px] -z-10 animate-blob" />
+       {/* Background removed */}
        
       <Card className="w-full max-w-xl glass-panel-heavy text-slate-900 relative z-10 transition-all duration-500 overflow-hidden">
         <CardHeader className="text-center pt-8">
