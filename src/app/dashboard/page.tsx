@@ -58,6 +58,16 @@ export default function Dashboard() {
     return () => { supabase.removeAllChannels(); };
   }, []);
 
+  const [selectedProject, setSelectedProject] = useState<any>(null);
+
+  const fetchMatchesForProject = async (project: any, profileLoc: string) => {
+    const { data: matches } = await supabase.rpc("find_matching_innovators", { 
+      req_skills: project.required_skills,
+      req_location: project.location || profileLoc
+    });
+    setRecommendedInnovators((matches || []).filter((m: any) => m.id !== user?.id));
+  };
+
   const loadDashboardData = async (userId: string) => {
     // 1. Get profile
     const { data: profile } = await supabase.from("users").select("*").eq("id", userId).single();
@@ -71,20 +81,8 @@ export default function Dashboard() {
     const { data: myProjects } = await supabase.from("projects").select("*").eq("owner_id", userId);
     setProjects(myProjects || []);
 
-    // 3. If I have projects, get recommendations for the first open project
-    // For MVP, just get first project's matches
-    if (myProjects && myProjects.length > 0) {
-      const openProject = myProjects.find(p => p.status === 'open');
-      if (openProject) {
-        const { data: matches } = await supabase.rpc("find_matching_innovators", { 
-          req_skills: openProject.required_skills,
-          req_location: openProject.location || profile.location
-        });
-        // filter out self
-        setRecommendedInnovators((matches || []).filter((m: any) => m.id !== userId));
-      }
-    } else {
-      // If no projects, maybe I'm a laborer looking for projects. MVP simplification: show all users except self
+    // 3. If no projects, load default recommendations
+    if (!myProjects || myProjects.length === 0) {
       const { data: allUsers } = await supabase.from("users").select("*").neq("id", userId).limit(10);
       setRecommendedInnovators(allUsers || []);
     }
@@ -232,171 +230,198 @@ export default function Dashboard() {
       </div>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 py-12 grid grid-cols-1 lg:grid-cols-12 gap-10">
-        
-        {/* Left Column: Project Creation & Active Chats */}
-        <div className={`lg:col-span-5 space-y-10 ${isLaborer ? 'hidden lg:block' : 'block'}`}>
-          <Card className="glass-panel overflow-hidden border-slate-300/50 transition-all hover:shadow-[0_0_30px_rgba(59,130,246,0.15)]">
-            <div className="h-1.5 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 animate-[shimmer_3s_infinite]" />
-            <CardHeader className="pt-8">
-              <CardTitle className="text-2xl font-bold text-slate-900">Create a Project</CardTitle>
-              <CardDescription className="text-slate-600 mt-2">Describe what you need built, and our AI will instantly extract the required skills.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleCreateProject} className="space-y-5">
-                <div className="relative group">
-                  <Input 
-                    placeholder="Project Title (e.g., Custom Drone Chassis)" 
-                    className="bg-slate-50/50 border-slate-300/50 py-6 rounded-xl focus-visible:ring-blue-500 transition-all"
-                    value={newProjectTitle}
-                    onChange={e => setNewProjectTitle(e.target.value)}
-                  />
-                </div>
-                <div className="relative group">
-                  <Textarea 
-                    placeholder="Describe the physical labor or tech integration required..." 
-                    className="bg-slate-50/50 border-slate-300/50 min-h-[140px] rounded-xl focus-visible:ring-indigo-500 transition-all resize-none p-4"
-                    value={newProjectDesc}
-                    onChange={e => setNewProjectDesc(e.target.value)}
-                  />
-                </div>
-                <Button type="submit" disabled={isCreatingProject} className="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-6 rounded-xl shadow-[0_0_20px_rgba(59,130,246,0.3)] transition-all">
-                  {isCreatingProject ? <FontAwesomeIcon icon={faSpinner} className="animate-spin text-xl" /> : "Post Project"}
-                </Button>
-              </form>
-            </CardContent>
-          </Card>
-
-          {/* My Projects */}
-          {projects.length > 0 && (
-            <div className="space-y-4">
-              <h3 className="text-xl font-bold text-slate-900 flex items-center gap-2">
-                My Projects
-              </h3>
-              {projects.map(project => (
-                <Card key={project.id} className="glass-panel border-slate-300/50 hover:border-blue-500/30 transition-all">
-                  <CardContent className="p-5">
-                    <div className="flex justify-between items-start">
-                      <h4 className="font-bold text-lg text-blue-400">{project.title}</h4>
-                      <span className="text-xs px-2 py-1 rounded-md bg-slate-100 text-slate-600 uppercase tracking-wider">{project.status}</span>
-                    </div>
-                    <p className="text-sm text-slate-700 mt-2 line-clamp-2">{project.description}</p>
+      <div className="max-w-7xl mx-auto px-4 py-12">
+        {isLaborer ? (
+          // Laborer View (Original list layout)
+          <div className="space-y-8">
+            <div className="flex items-center justify-between px-2">
+              <h2 className="text-3xl font-bold tracking-tight text-glow">Recommended Projects & People</h2>
+              <div className="w-12 h-12 rounded-full bg-slate-100/50 flex items-center justify-center border border-slate-300/50 backdrop-blur-sm">
+                <FontAwesomeIcon icon={faUsers} className="text-emerald-400 text-xl drop-shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {recommendedInnovators.map(innovator => (
+                <Card key={innovator.id} className="glass-panel border-slate-300/40 hover:border-emerald-500/50 transition-all duration-300 group hover:-translate-y-1 hover:shadow-[0_15px_30px_rgba(0,0,0,0.4)]">
+                  <CardContent className="p-7">
+                    <h3 className="font-bold text-xl text-slate-900 group-hover:text-emerald-400">{innovator.name}</h3>
+                    <p className="text-sm font-medium text-emerald-500/80 mt-1 capitalize tracking-wider">{innovator.role}</p>
+                    <p className="text-sm font-medium text-yellow-500/80 mt-1">★ {Number(innovator.rating || 5.0).toFixed(1)}</p>
+                    {innovator.bio && <p className="text-sm text-slate-700 mt-4 line-clamp-2 leading-relaxed">{innovator.bio}</p>}
                     
-                    {/* BOM Estimate */}
-                    {project.bom_estimate && Array.isArray(project.bom_estimate) && project.bom_estimate.length > 0 && (
-                      <div className="mt-4 pt-4 border-t border-slate-200/80">
-                        <p className="text-xs font-semibold text-yellow-500/80 uppercase tracking-wider mb-2">Scrap-to-Proto BOM</p>
-                        <ul className="list-disc list-inside text-sm text-slate-600 space-y-1">
-                          {project.bom_estimate.map((item: string, idx: number) => (
-                            <li key={idx}>{item}</li>
-                          ))}
+                    <div className="mt-6 flex flex-col gap-2">
+                      <Button onClick={() => handleRequestConnect(innovator.id)} className="w-full bg-slate-100/80 hover:bg-emerald-600 text-slate-900 border border-slate-300 rounded-xl py-6">
+                        <FontAwesomeIcon icon={faPlus} className="mr-2" /> Connect
+                      </Button>
+                      <Button variant="outline" onClick={() => triggerWhatsAppNotification(innovator.phone)} className="w-full bg-green-600/20 hover:bg-green-600 text-green-400 border border-green-700/50 rounded-xl py-6">
+                        WhatsApp
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+
+            {activeConnections.length > 0 && (
+              <Card className="glass-panel mt-10">
+                <CardHeader><CardTitle className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />Active Collaborations</CardTitle></CardHeader>
+                <CardContent className="space-y-4">
+                  {activeConnections.map(conn => (
+                    <div key={conn.id} className="p-5 rounded-2xl bg-white/50 border border-slate-300 flex justify-between items-center hover:border-zinc-600 transition-colors">
+                      <div><div className="font-bold text-emerald-600">{conn.project.title}</div><div className="text-sm text-slate-600 mt-1">{conn.requester.name}</div></div>
+                      <Button onClick={() => setActiveChatConnection(conn)} className="rounded-xl"><FontAwesomeIcon icon={faComments} className="mr-2" /> Chat</Button>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        ) : (
+          // Innovator View (Master-Detail)
+          <div className="space-y-8">
+            {!selectedProject ? (
+              // Level 1: Project List or Create Project
+              <>
+                <div className="flex items-center justify-between px-2 mb-6">
+                  <h2 className="text-3xl font-bold tracking-tight text-glow">My Projects</h2>
+                </div>
+
+                {projects.length === 0 ? (
+                  <div className="py-16 text-center text-slate-600 glass-panel rounded-2xl border-dashed border-2 border-slate-300/50 mb-10">
+                    <p className="text-2xl font-bold text-slate-700">No projects found.</p>
+                    <p className="text-md mt-2">Create a project below to start finding skilled craftsmen.</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
+                    {projects.map(project => (
+                      <Card 
+                        key={project.id} 
+                        onClick={() => { setSelectedProject(project); fetchMatchesForProject(project, userProfile.location); }}
+                        className="glass-panel cursor-pointer hover:border-blue-500 hover:shadow-2xl transition-all hover:-translate-y-1"
+                      >
+                        <CardContent className="p-6">
+                          <h4 className="font-bold text-xl text-blue-600 mb-2 line-clamp-1">{project.title}</h4>
+                          <span className="text-xs px-2 py-1 rounded-md bg-slate-200 text-slate-700 uppercase">{project.status}</span>
+                          <p className="text-sm text-slate-600 mt-4 line-clamp-2">{project.description}</p>
+                          <div className="mt-6 flex justify-end text-sm font-bold text-blue-500">View Details & Matches →</div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+
+                {/* Create Project Form always available at root */}
+                <Card className="glass-panel max-w-3xl border-slate-300/50 hover:shadow-lg transition-all">
+                  <div className="h-1.5 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 animate-[shimmer_3s_infinite]" />
+                  <CardHeader>
+                    <CardTitle className="text-2xl font-bold">Create New Project</CardTitle>
+                    <CardDescription>Describe what you need built, and our AI will extract the skills and match you.</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <form onSubmit={handleCreateProject} className="space-y-5">
+                      <Input placeholder="Project Title" value={newProjectTitle} onChange={e => setNewProjectTitle(e.target.value)} className="bg-white py-6" required />
+                      <Textarea placeholder="Describe the physical labor needed..." value={newProjectDesc} onChange={e => setNewProjectDesc(e.target.value)} className="bg-white min-h-[140px] p-4" required />
+                      <Button type="submit" disabled={isCreatingProject} className="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-6 rounded-xl shadow-[0_0_20px_rgba(59,130,246,0.3)]">
+                        {isCreatingProject ? <FontAwesomeIcon icon={faSpinner} className="animate-spin text-xl" /> : "Post Project"}
+                      </Button>
+                    </form>
+                  </CardContent>
+                </Card>
+              </>
+            ) : (
+              // Level 2: Selected Project View
+              <div className="space-y-8 animate-in slide-in-from-right-8 duration-300">
+                <button 
+                  onClick={() => setSelectedProject(null)} 
+                  className="text-blue-600 hover:text-blue-700 font-bold flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-blue-50 transition-colors"
+                >
+                  <FontAwesomeIcon icon={faPlus} className="rotate-45" /> Back to My Projects
+                </button>
+                
+                <Card className="glass-panel-heavy border-blue-200 shadow-2xl">
+                  <CardHeader>
+                    <div className="flex justify-between items-start">
+                      <CardTitle className="text-3xl font-extrabold text-blue-700">{selectedProject.title}</CardTitle>
+                      <span className="text-xs px-3 py-1 rounded-md bg-blue-100 text-blue-800 uppercase tracking-wider font-bold">{selectedProject.status}</span>
+                    </div>
+                    <CardDescription className="text-lg text-slate-700 mt-2">{selectedProject.description}</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    {selectedProject.bom_estimate && selectedProject.bom_estimate.length > 0 && (
+                      <div className="mt-4 p-5 bg-white/60 rounded-xl border border-slate-200">
+                        <p className="font-bold text-yellow-600 mb-3 uppercase tracking-widest text-sm flex items-center gap-2">
+                          <FontAwesomeIcon icon={faLaptopCode} /> Scrap-to-Proto BOM
+                        </p>
+                        <ul className="list-disc list-inside text-slate-700 space-y-2 font-medium">
+                          {selectedProject.bom_estimate.map((item: string, i: number) => <li key={i}>{item}</li>)}
                         </ul>
                       </div>
                     )}
                   </CardContent>
                 </Card>
-              ))}
-            </div>
-          )}
 
-          {/* Active Chats */}
-          {activeConnections.length > 0 && (
-            <Card className="glass-panel border-slate-300/50">
-              <CardHeader className="pb-4">
-                <CardTitle className="text-xl flex items-center gap-3">
-                  <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                  Active Collaborations
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {activeConnections.map(conn => (
-                  <div key={conn.id} className="p-5 rounded-2xl bg-slate-50/40 border border-slate-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:border-zinc-600 transition-colors">
-                    <div>
-                      <div className="font-bold text-emerald-400 tracking-wide">{conn.project.title}</div>
-                      <div className="text-sm text-slate-600 mt-1 flex items-center gap-2">
-                        <FontAwesomeIcon icon={faUserCircle} className="text-slate-500" />
-                        {conn.requester_id === user.id ? conn.owner.name : conn.requester.name}
-                      </div>
-                    </div>
-                    <Button variant="outline" className="rounded-xl border-slate-300 hover:bg-slate-100 hover:text-blue-700 shadow-inner bg-white/50" onClick={() => setActiveChatConnection(conn)}>
-                      <FontAwesomeIcon icon={faComments} className="mr-2" /> Chat
-                    </Button>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-          )}
-        </div>
+                {/* Project Chats */}
+                {activeConnections.filter(c => c.project_id === selectedProject.id).length > 0 && (
+                  <Card className="glass-panel border-emerald-300">
+                    <CardHeader>
+                      <CardTitle className="text-emerald-700 flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" /> Active Collaborations
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      {activeConnections.filter(c => c.project_id === selectedProject.id).map(conn => (
+                        <div key={conn.id} className="p-4 rounded-xl bg-white flex justify-between items-center border border-slate-200 hover:border-emerald-400 transition-colors">
+                          <div>
+                            <span className="font-bold text-slate-800 flex items-center gap-2">
+                              <FontAwesomeIcon icon={faUserCircle} className="text-slate-400 text-xl" /> 
+                              {conn.requester_id === user.id ? conn.owner.name : conn.requester.name}
+                            </span>
+                          </div>
+                          <Button onClick={() => setActiveChatConnection(conn)} className="bg-emerald-600 rounded-xl px-6">
+                            <FontAwesomeIcon icon={faComments} className="mr-2" /> Chat
+                          </Button>
+                        </div>
+                      ))}
+                    </CardContent>
+                  </Card>
+                )}
 
-        {/* Right Column: Innovators Feed */}
-        <div className={`lg:col-span-7 space-y-8 ${isLaborer ? 'col-span-1' : ''}`}>
-          <div className="flex items-center justify-between px-2">
-            <h2 className="text-3xl font-bold tracking-tight text-glow">
-              {isLaborer ? "Recommended Projects & People" : "Recommended Innovators"}
-            </h2>
-            <div className="w-12 h-12 rounded-full bg-slate-100/50 flex items-center justify-center border border-slate-300/50 backdrop-blur-sm">
-              <FontAwesomeIcon icon={faUsers} className="text-emerald-400 text-xl drop-shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {recommendedInnovators.map(innovator => (
-              <Card key={innovator.id} className="glass-panel border-slate-300/40 hover:border-emerald-500/50 transition-all duration-300 group cursor-default hover:-translate-y-1 hover:shadow-[0_15px_30px_rgba(0,0,0,0.4)]">
-                <CardContent className="p-7">
-                  <div className="flex justify-between items-start mb-5">
-                    <div>
-                      <h3 className="font-bold text-xl text-slate-900 group-hover:text-emerald-400 transition-colors drop-shadow-md">{innovator.name}</h3>
-                      <p className="text-sm font-medium text-emerald-500/80 capitalize tracking-wider mt-1">{innovator.role}</p>
-                      <p className="text-sm font-medium text-yellow-500/80 mt-1">★ {Number(innovator.rating || 5.0).toFixed(1)}</p>
-                      {innovator.location && (
-                        <p className="text-xs text-slate-600 mt-2 flex items-center gap-1.5"><FontAwesomeIcon icon={faMapMarkerAlt} className="text-slate-500" />{innovator.location}</p>
-                      )}
-                    </div>
-                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-blue-500/20 flex items-center justify-center border border-emerald-500/20 shadow-inner">
-                      <span className="text-emerald-400 font-extrabold text-lg drop-shadow-[0_0_5px_rgba(52,211,153,0.5)]">{innovator.name.charAt(0)}</span>
-                    </div>
-                  </div>
-
-                  {innovator.bio && (
-                    <p className="text-sm text-slate-700 mb-6 line-clamp-2 leading-relaxed">{innovator.bio}</p>
-                  )}
+                <div>
+                  <h3 className="text-2xl font-bold mt-12 mb-6 text-slate-800 flex items-center gap-3">
+                    <FontAwesomeIcon icon={faUsers} className="text-emerald-500" /> Matching Recommended Craftsmen
+                  </h3>
                   
-                  <div className="flex flex-wrap gap-2 mb-8">
-                    {(innovator.skills || []).map((skill: string, idx: number) => (
-                      <span key={idx} className="px-3 py-1.5 rounded-lg bg-white/80 text-xs font-semibold text-slate-700 border border-slate-300/80 shadow-[inset_0_1px_2px_rgba(255,255,255,0.05)]">
-                        {skill}
-                      </span>
-                    ))}
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {recommendedInnovators.length === 0 ? (
+                      <div className="col-span-full py-12 text-center text-slate-500 bg-white/50 rounded-2xl border border-dashed border-slate-300">
+                        <p className="text-lg font-medium">No craftsmen found for these skills yet.</p>
+                      </div>
+                    ) : (
+                      recommendedInnovators.map(innovator => (
+                        <Card key={innovator.id} className="glass-panel hover:shadow-[0_15px_30px_rgba(0,0,0,0.1)] hover:-translate-y-1 transition-all duration-300 border-slate-300/40">
+                          <CardContent className="p-6">
+                            <h4 className="font-bold text-xl text-slate-900 drop-shadow-sm">{innovator.name}</h4>
+                            <p className="text-sm font-medium text-emerald-600 mt-1 tracking-wider">★ {Number(innovator.rating || 5).toFixed(1)}</p>
+                            {innovator.bio && <p className="text-sm text-slate-600 mt-3 line-clamp-2">{innovator.bio}</p>}
+                            <div className="mt-6 flex flex-col gap-2">
+                              <Button onClick={() => handleRequestConnect(innovator.id)} className="w-full bg-slate-100/80 hover:bg-emerald-600 text-slate-900 border border-slate-300 hover:border-emerald-500 rounded-xl py-6 transition-all group">
+                                <FontAwesomeIcon icon={faPlus} className="mr-2 group-hover:scale-110 transition-transform" /> Request to Connect
+                              </Button>
+                              <Button variant="outline" onClick={() => triggerWhatsAppNotification(innovator.phone)} className="w-full bg-green-600/10 hover:bg-green-600 text-green-600 hover:text-white border-green-600/30 rounded-xl py-6 transition-all">
+                                WhatsApp
+                              </Button>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))
+                    )}
                   </div>
-
-                  <div className="flex flex-col gap-2">
-                    <Button 
-                      onClick={() => handleRequestConnect(innovator.id)}
-                      className="w-full bg-slate-100/80 hover:bg-emerald-600 text-slate-900 transition-all duration-300 border border-slate-300 group-hover:border-emerald-500/50 group-hover:shadow-[0_0_20px_rgba(16,185,129,0.3)] rounded-xl py-6"
-                    >
-                      <FontAwesomeIcon icon={faPlus} className="mr-2" /> Request to Connect
-                    </Button>
-                    <Button 
-                      variant="outline"
-                      onClick={() => triggerWhatsAppNotification(innovator.phone)}
-                      className="w-full bg-green-600/20 hover:bg-green-600 text-green-400 hover:text-blue-700 transition-all duration-300 border border-green-700/50 rounded-xl py-6"
-                    >
-                      Post Project & Notify Laborer
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-            
-            {recommendedInnovators.length === 0 && (
-              <div className="col-span-full py-16 text-center text-slate-600 glass-panel rounded-2xl border-dashed border-2 border-slate-300/50">
-                <FontAwesomeIcon icon={faUsers} className="text-4xl text-slate-400 mb-4" />
-                <p className="text-lg">No exact matches found right now.</p>
-                <p className="text-sm text-slate-500 mt-2">Check back later or update your project skills.</p>
+                </div>
               </div>
             )}
           </div>
-        </div>
+        )}
       </div>
 
       {/* Chat Modal */}
