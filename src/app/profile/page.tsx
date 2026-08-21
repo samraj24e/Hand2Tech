@@ -1,6 +1,5 @@
 "use client";
-
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -8,44 +7,57 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowLeft, faSave, faSpinner, faTimes, faUserCircle, faMapMarkerAlt } from "@fortawesome/free-solid-svg-icons";
+import { faSpinner, faUserCircle, faArrowLeft, faSave, faTimes, faMapMarkerAlt } from "@fortawesome/free-solid-svg-icons";
 import { toast } from "sonner";
+import { parseProfileMetadata, stringifyProfileMetadata, InnovatorMetadata } from "@/lib/utils";
 
 export default function ProfilePage() {
+  const router = useRouter();
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  
+
+  // Base fields
   const [name, setName] = useState("");
   const [location, setLocation] = useState("");
   const [bio, setBio] = useState("");
   const [phone, setPhone] = useState("");
   const [skills, setSkills] = useState<string[]>([]);
   const [newSkill, setNewSkill] = useState("");
-  
-  const router = useRouter();
+
+  // Extended Metadata fields
+  const [metadata, setMetadata] = useState<InnovatorMetadata>({ bioText: "" });
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    const checkUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
         router.push("/");
       } else {
         loadProfile(session.user.id);
       }
-    });
-  }, []);
+    };
+    checkUser();
+  }, [router]);
 
-  async function loadProfile(userId: string) {
+  const loadProfile = async (userId: string) => {
     const { data: profile } = await supabase.from("users").select("*").eq("id", userId).single();
     if (profile) {
       setUser(profile);
       setName(profile.name || "");
       setLocation(profile.location || "");
-      setBio(profile.bio || "");
       setPhone(profile.phone || "");
       setSkills(profile.skills || []);
+      
+      const parsedMeta = parseProfileMetadata(profile.bio);
+      setMetadata(parsedMeta);
+      setBio(parsedMeta.bioText || "");
     }
     setLoading(false);
+  };
+
+  const handleMetadataChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setMetadata(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
   const handleSave = async (e: React.FormEvent) => {
@@ -53,10 +65,12 @@ export default function ProfilePage() {
     if (!user) return;
     setSaving(true);
     
+    const finalMetadata = { ...metadata, bioText: bio };
+    
     const { error } = await supabase.from("users").update({
       name,
       location,
-      bio,
+      bio: stringifyProfileMetadata(finalMetadata),
       phone,
       skills
     }).eq("id", user.id);
@@ -82,12 +96,10 @@ export default function ProfilePage() {
 
   if (loading) return <div className="min-h-screen relative" />;
 
+  const cat = metadata.category;
+
   return (
     <div className="min-h-screen font-sans p-4 lg:p-12 relative overflow-hidden">
-      {/* Background */}
-      <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-blue-600/20 rounded-full blur-[120px] pointer-events-none animate-blob" />
-      <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-emerald-600/20 rounded-full blur-[120px] pointer-events-none animate-blob animation-delay-4000" />
-
       <div className="max-w-3xl mx-auto space-y-8 relative z-10">
         <Button variant="ghost" onClick={() => router.push("/dashboard")} className="text-slate-600 hover:text-blue-600 bg-white border border-slate-200 rounded-xl px-5 transition-all hover:bg-slate-50 hover:-translate-x-1 shadow-sm">
           <FontAwesomeIcon icon={faArrowLeft} className="mr-3" /> Back to Dashboard
@@ -108,53 +120,79 @@ export default function ProfilePage() {
               
               <div className="space-y-3 group">
                 <label className="text-sm font-semibold text-slate-700 tracking-wide uppercase">Name</label>
-                <Input 
-                  value={name} 
-                  onChange={e => setName(e.target.value)} 
-                  className="bg-white border-slate-300 focus-visible:ring-blue-500 py-6 rounded-xl shadow-inner transition-all group-focus-within:border-blue-500/50" 
-                />
+                <Input value={name} onChange={e => setName(e.target.value)} className="bg-white border-slate-300 focus-visible:ring-blue-500 py-6 rounded-xl shadow-inner transition-all" />
               </div>
 
               <div className="space-y-3 group">
                 <label className="text-sm font-semibold text-slate-700 tracking-wide uppercase flex items-center gap-2">
                   Location <FontAwesomeIcon icon={faMapMarkerAlt} className="text-slate-500" />
                 </label>
-                <Input 
-                  placeholder="e.g. San Francisco, CA"
-                  value={location} 
-                  onChange={e => setLocation(e.target.value)} 
-                  className="bg-white border-slate-300 focus-visible:ring-emerald-500 py-6 rounded-xl shadow-inner transition-all group-focus-within:border-emerald-500/50" 
-                />
+                <Input placeholder="e.g. San Francisco, CA" value={location} onChange={e => setLocation(e.target.value)} className="bg-white border-slate-300 focus-visible:ring-emerald-500 py-6 rounded-xl shadow-inner transition-all" />
               </div>
 
               <div className="space-y-3 group">
                 <label className="text-sm font-semibold text-slate-700 tracking-wide uppercase">Bio</label>
-                <Textarea 
-                  placeholder="A short summary about you and your experience..."
-                  value={bio} 
-                  onChange={e => setBio(e.target.value)} 
-                  className="bg-white border-slate-300 min-h-[120px] focus-visible:ring-indigo-500 rounded-xl shadow-inner transition-all group-focus-within:border-indigo-500/50 p-4 resize-none" 
-                />
+                <Textarea placeholder="A short summary about you and your experience..." value={bio} onChange={e => setBio(e.target.value)} className="bg-white border-slate-300 min-h-[120px] focus-visible:ring-indigo-500 rounded-xl shadow-inner transition-all p-4 resize-none" />
               </div>
 
               <div className="space-y-3 group">
                 <label className="text-sm font-semibold text-slate-700 tracking-wide uppercase">Phone Number</label>
-                <Input 
-                  placeholder="e.g. +91 9876543210 (For WhatsApp Match Alerts)"
-                  value={phone} 
-                  onChange={e => setPhone(e.target.value)} 
-                  className="bg-white border-slate-300 focus-visible:ring-blue-500 py-6 rounded-xl shadow-inner transition-all group-focus-within:border-blue-500/50" 
-                />
+                <Input placeholder="e.g. +91 9876543210 (For WhatsApp Match Alerts)" value={phone} onChange={e => setPhone(e.target.value)} className="bg-white border-slate-300 focus-visible:ring-blue-500 py-6 rounded-xl shadow-inner transition-all" />
               </div>
+
+              {cat && (
+                <div className="p-6 border border-slate-200 rounded-2xl bg-slate-50 space-y-6">
+                  <h4 className="text-lg font-bold text-slate-800 capitalize border-b border-slate-200 pb-2">{cat.replace('_', ' ')} Details</h4>
+                  
+                  {(cat === 'student' || cat === 'organization') && (
+                    <div className="space-y-3 group">
+                      <label className="text-sm font-semibold text-slate-700 tracking-wide uppercase">{cat === 'student' ? 'Institution Name' : 'Organization Name'}</label>
+                      <Input name="institution_name" value={metadata.institution_name || ""} onChange={handleMetadataChange} className="bg-white border-slate-300 py-6 rounded-xl" />
+                    </div>
+                  )}
+
+                  {(cat === 'student' || cat === 'organization') && (
+                    <div className="space-y-3 group">
+                      <label className="text-sm font-semibold text-slate-700 tracking-wide uppercase">Website</label>
+                      <Input name="institution_website" value={metadata.institution_website || ""} onChange={handleMetadataChange} className="bg-white border-slate-300 py-6 rounded-xl" />
+                    </div>
+                  )}
+
+                  {(cat === 'student' || cat === 'self_finance') && (
+                    <>
+                      <div className="space-y-3 group">
+                        <label className="text-sm font-semibold text-slate-700 tracking-wide uppercase">Portfolio URL</label>
+                        <Input name="portfolio" value={metadata.portfolio || ""} onChange={handleMetadataChange} className="bg-white border-slate-300 py-6 rounded-xl" />
+                      </div>
+                      <div className="space-y-3 group">
+                        <label className="text-sm font-semibold text-slate-700 tracking-wide uppercase">Years of Experience</label>
+                        <Input name="years_of_experience" value={metadata.years_of_experience || ""} onChange={handleMetadataChange} className="bg-white border-slate-300 py-6 rounded-xl" />
+                      </div>
+                    </>
+                  )}
+
+                  {cat === 'organization' && (
+                    <div className="space-y-3 group">
+                      <label className="text-sm font-semibold text-slate-700 tracking-wide uppercase">Organization GST No</label>
+                      <Input name="organization_gst" value={metadata.organization_gst || ""} onChange={handleMetadataChange} className="bg-white border-slate-300 py-6 rounded-xl" />
+                    </div>
+                  )}
+
+                  <div className="space-y-3 group">
+                    <label className="text-sm font-semibold text-slate-700 tracking-wide uppercase">Domain Interests</label>
+                    <Input name="domain_interests" value={metadata.domain_interests || ""} onChange={handleMetadataChange} className="bg-white border-slate-300 py-6 rounded-xl" />
+                  </div>
+                </div>
+              )}
 
               <div className="space-y-4 pt-4">
                 <label className="text-sm font-semibold text-slate-700 tracking-wide uppercase">Technical Skills</label>
                 
                 <div className="flex flex-wrap gap-3 mb-4">
                   {skills.map((skill, idx) => (
-                    <span key={idx} className="flex items-center px-4 py-2 rounded-full bg-white/80 text-sm font-semibold text-slate-900 border border-slate-300/80 shadow-[inset_0_1px_2px_rgba(255,255,255,0.1),0_0_10px_rgba(0,0,0,0.5)] transition-all animate-in zoom-in duration-200 group">
+                    <span key={idx} className="flex items-center px-4 py-2 rounded-full bg-white/80 text-sm font-semibold text-slate-900 border border-slate-300/80 transition-all">
                       {skill}
-                      <button type="button" onClick={() => removeSkill(skill)} className="ml-3 text-slate-500 hover:text-red-400 hover:scale-110 transition-all focus:outline-none">
+                      <button type="button" onClick={() => removeSkill(skill)} className="ml-3 text-slate-500 hover:text-red-400 hover:scale-110 transition-all">
                         <FontAwesomeIcon icon={faTimes} />
                       </button>
                     </span>
@@ -163,29 +201,14 @@ export default function ProfilePage() {
                 </div>
 
                 <div className="flex gap-3">
-                  <Input 
-                    placeholder="Add a new skill (e.g. React, Welding)"
-                    value={newSkill} 
-                    onChange={e => setNewSkill(e.target.value)} 
-                    onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addSkill(); } }}
-                    className="bg-white border-slate-300 focus-visible:ring-emerald-500 py-6 rounded-xl shadow-inner transition-all flex-1" 
-                  />
-                  <Button type="button" onClick={addSkill} variant="secondary" className="bg-slate-100 hover:bg-emerald-600 hover:text-blue-700 transition-all rounded-xl shadow-md border border-slate-300 px-6 font-semibold">
-                    Add
-                  </Button>
+                  <Input placeholder="Add a new skill (e.g. React, Welding)" value={newSkill} onChange={e => setNewSkill(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addSkill(); } }} className="bg-white border-slate-300 py-6 rounded-xl flex-1" />
+                  <Button type="button" onClick={addSkill} variant="secondary" className="bg-slate-100 border border-slate-300 px-6 font-semibold h-full rounded-xl">Add</Button>
                 </div>
               </div>
 
-              <div className="pt-8 border-t border-slate-200/80 mt-8">
-                <Button type="submit" disabled={saving} className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-7 rounded-xl shadow-[0_0_20px_rgba(59,130,246,0.4)] transition-all overflow-hidden relative group">
-                  <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:animate-[shimmer_1.5s_infinite]" />
-                  {saving ? (
-                    <FontAwesomeIcon icon={faSpinner} className="animate-spin text-2xl relative z-10" />
-                  ) : (
-                    <span className="flex items-center text-lg relative z-10">
-                      <FontAwesomeIcon icon={faSave} className="mr-3" /> Save Profile Changes
-                    </span>
-                  )}
+              <div className="pt-8 border-t border-slate-200 mt-8">
+                <Button type="submit" disabled={saving} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-7 rounded-xl shadow-lg transition-all">
+                  {saving ? <FontAwesomeIcon icon={faSpinner} className="animate-spin text-2xl" /> : <span className="flex items-center text-lg"><FontAwesomeIcon icon={faSave} className="mr-3" /> Save Profile Changes</span>}
                 </Button>
               </div>
 

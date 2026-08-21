@@ -5,6 +5,7 @@ import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { parseProfileMetadata } from "@/lib/utils";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -274,7 +275,7 @@ export default function Dashboard() {
                     <h3 className="font-bold text-xl text-slate-900 group-hover:text-emerald-400">{innovator.name}</h3>
                     <p className="text-sm font-medium text-emerald-500/80 mt-1 capitalize tracking-wider">{innovator.role}</p>
                     <p className="text-sm font-medium text-yellow-500/80 mt-1">★ {Number(innovator.rating || 5.0).toFixed(1)}</p>
-                    {innovator.bio && <p className="text-sm text-slate-700 mt-4 line-clamp-2 leading-relaxed">{innovator.bio}</p>}
+                    {innovator.bio && <p className="text-sm text-slate-700 mt-4 line-clamp-2 leading-relaxed">{parseProfileMetadata(innovator.bio).bioText || parseProfileMetadata(innovator.bio).domain_interests}</p>}
                     
                     <div className="mt-6 flex flex-col gap-2">
                       <Button onClick={() => handleRequestConnect(innovator.id)} className="w-full bg-slate-100/80 hover:bg-emerald-600 text-slate-900 border border-slate-300 rounded-xl py-6">
@@ -432,7 +433,7 @@ export default function Dashboard() {
                           <CardContent className="p-6">
                             <h4 className="font-bold text-xl text-slate-900 drop-shadow-sm">{innovator.name}</h4>
                             <p className="text-sm font-medium text-emerald-600 mt-1 tracking-wider">★ {Number(innovator.rating || 5).toFixed(1)}</p>
-                            {innovator.bio && <p className="text-sm text-slate-600 mt-3 line-clamp-2">{innovator.bio}</p>}
+                            {innovator.bio && <p className="text-sm text-slate-600 mt-3 line-clamp-2">{parseProfileMetadata(innovator.bio).bioText || parseProfileMetadata(innovator.bio).domain_interests}</p>}
                             <div className="mt-6 flex flex-col gap-2">
                               <Button onClick={() => handleRequestConnect(innovator.id)} className="w-full bg-slate-100/80 hover:bg-emerald-600 text-slate-900 border border-slate-300 hover:border-emerald-500 rounded-xl py-6 transition-all group">
                                 <FontAwesomeIcon icon={faPlus} className="mr-2 group-hover:scale-110 transition-transform" /> Request to Connect

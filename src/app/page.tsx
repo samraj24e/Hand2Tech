@@ -10,6 +10,7 @@ import { faGoogle } from "@fortawesome/free-brands-svg-icons";
 import { faHammer, faLaptopCode, faSpinner } from "@fortawesome/free-solid-svg-icons";
 import { useRouter } from "next/navigation";
 import { SplashScreen } from "@/components/SplashScreen";
+import TechInnovatorForm from "@/components/TechInnovatorForm";
 
 export default function AuthPage() {
   const [showSplash, setShowSplash] = useState(true);
@@ -317,11 +318,15 @@ export default function AuthPage() {
             </div>
           )}
 
-          {onboardingStep === 2 && (
+          {onboardingStep === 2 && role === 'student' && (
+            <TechInnovatorForm user={user} role={role} />
+          )}
+
+          {onboardingStep === 2 && role === 'laborer' && (
             <div className="flex flex-col items-center justify-center py-8 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
               <div className="text-center max-w-md">
-                <h3 className="text-2xl font-bold mb-3 text-glow">
-                  Upload your {role === 'student' ? 'Resume' : 'Trade Certificate'}
+                <h3 className="text-2xl font-bold mb-3 text-slate-900">
+                  Upload your Trade Certificate
                 </h3>
                 <p className="text-slate-600 text-sm leading-relaxed">
                   Our AI will instantly analyze your document to highlight your top skills and match you with the perfect projects.
