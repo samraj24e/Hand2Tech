@@ -258,6 +258,53 @@ export default function Dashboard() {
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 py-12">
+        {/* KPI Section */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+          {isLaborer ? (
+            <>
+              <Card className="bg-white border border-slate-200 shadow-sm rounded-2xl overflow-hidden hover:shadow-md transition-shadow">
+                <CardContent className="p-6">
+                  <p className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-2">Available Gigs</p>
+                  <div className="text-4xl font-extrabold text-blue-600">{recommendedInnovators.length}</div>
+                </CardContent>
+              </Card>
+              <Card className="bg-white border border-slate-200 shadow-sm rounded-2xl overflow-hidden hover:shadow-md transition-shadow">
+                <CardContent className="p-6">
+                  <p className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-2">Active Collaborations</p>
+                  <div className="text-4xl font-extrabold text-emerald-600">{activeConnections.length}</div>
+                </CardContent>
+              </Card>
+              <Card className="bg-white border border-slate-200 shadow-sm rounded-2xl overflow-hidden hover:shadow-md transition-shadow">
+                <CardContent className="p-6">
+                  <p className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-2">My Rating</p>
+                  <div className="text-4xl font-extrabold text-yellow-500">★ {Number(userProfile?.rating || 5.0).toFixed(1)}</div>
+                </CardContent>
+              </Card>
+            </>
+          ) : (
+            <>
+              <Card className="bg-white border border-slate-200 shadow-sm rounded-2xl overflow-hidden hover:shadow-md transition-shadow">
+                <CardContent className="p-6">
+                  <p className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-2">Total Projects</p>
+                  <div className="text-4xl font-extrabold text-blue-600">{projects.length}</div>
+                </CardContent>
+              </Card>
+              <Card className="bg-white border border-slate-200 shadow-sm rounded-2xl overflow-hidden hover:shadow-md transition-shadow">
+                <CardContent className="p-6">
+                  <p className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-2">Active Projects</p>
+                  <div className="text-4xl font-extrabold text-emerald-600">{projects.filter(p => p.status === 'open' || !p.status).length}</div>
+                </CardContent>
+              </Card>
+              <Card className="bg-white border border-slate-200 shadow-sm rounded-2xl overflow-hidden hover:shadow-md transition-shadow">
+                <CardContent className="p-6">
+                  <p className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-2">Active Collaborations</p>
+                  <div className="text-4xl font-extrabold text-indigo-600">{activeConnections.length}</div>
+                </CardContent>
+              </Card>
+            </>
+          )}
+        </div>
+
         {isLaborer ? (
           // Laborer View (Original list layout)
           <div className="space-y-8">
