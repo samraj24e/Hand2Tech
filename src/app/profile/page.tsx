@@ -170,7 +170,7 @@ export default function ProfilePage() {
 
                   {(cat === 'student' || cat === 'organization') && (
                     <div className="space-y-3 group">
-                      <label className="text-sm font-semibold text-slate-700 tracking-wide uppercase">Website</label>
+                      <label className="text-sm font-semibold text-slate-700 tracking-wide uppercase">{cat === 'student' ? 'Institution Website' : 'Organization Website'}</label>
                       <Input name="institution_website" value={metadata.institution_website || ""} onChange={handleMetadataChange} className="bg-white border-slate-300 py-6 rounded-xl" />
                     </div>
                   )}
@@ -199,6 +199,18 @@ export default function ProfilePage() {
                     <label className="text-sm font-semibold text-slate-700 tracking-wide uppercase">Domain Interests</label>
                     <Input name="domain_interests" value={metadata.domain_interests || ""} onChange={handleMetadataChange} className="bg-white border-slate-300 py-6 rounded-xl" />
                   </div>
+
+                  <div className="border-2 border-dashed border-slate-300 rounded-xl p-6 text-center bg-white relative hover:border-blue-500 transition-colors">
+                    <p className="text-sm text-slate-600 font-medium">Click to upload Profile Image / Logo</p>
+                    <Input type="file" className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" accept="image/*" />
+                  </div>
+
+                  {(cat === 'student' || cat === 'self_finance') && (
+                    <div className="border-2 border-dashed border-slate-300 rounded-xl p-6 text-center bg-white relative hover:border-blue-500 transition-colors">
+                      <p className="text-sm text-slate-600 font-medium">Click to upload Resume (PDF)</p>
+                      <Input type="file" className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" accept=".pdf,.doc,.docx" />
+                    </div>
+                  )}
                 </div>
               )}
 
