@@ -206,10 +206,14 @@ export default function Dashboard() {
     setPendingRequests(reqs || []);
 
     // 5. Get active connections (either I am requester or owner)
-    const { data: active } = await supabase.from("connections")
+    const { data: active, error: activeError } = await supabase.from("connections")
       .select("*, requester:users!requester_id(*), owner:users!owner_id(*), project:projects(*)")
       .in("status", ["pending", "accepted", "closing_pending", "completed_unreviewed"])
       .or(`owner_id.eq.${userId},requester_id.eq.${userId}`);
+      
+    if (activeError) {
+      console.error("Active connections fetch error:", activeError);
+    }
     setActiveConnections(active || []);
 
     setLoading(false);

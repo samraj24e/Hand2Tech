@@ -29,6 +29,12 @@ export function ChatUI({ connection, currentUser, onClose }: { connection: any, 
         supabase.from("messages").select("*").eq("connection_id", connection.id).order("created_at", { ascending: true }),
         supabase.from("milestones").select("*").eq("connection_id", connection.id).order("created_at", { ascending: true })
       ]);
+      
+      if (msgsRes.error) {
+        console.error("Fetch messages error:", msgsRes.error);
+        toast.error(`Error loading messages: ${msgsRes.error.message}`);
+      }
+      
       setMessages(msgsRes.data || []);
       setMilestones(msRes.data || []);
       setLoading(false);
@@ -80,12 +86,17 @@ export function ChatUI({ connection, currentUser, onClose }: { connection: any, 
       console.error("Translation error", e);
     }
     
-    await supabase.from("messages").insert({
+    const { error: insertError } = await supabase.from("messages").insert({
       connection_id: connection.id,
       sender_id: currentUser.id,
       text: msg,
       translated_text
     });
+    
+    if (insertError) {
+      console.error("Message insert error:", insertError);
+      toast.error(`Failed to send message: ${insertError.message}`);
+    }
   };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
