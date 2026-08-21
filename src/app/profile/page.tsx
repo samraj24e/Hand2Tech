@@ -184,6 +184,14 @@ export default function ProfilePage() {
                         <label className="text-sm font-semibold text-slate-700 tracking-wide uppercase">Years of Experience</label>
                         <Input name="years_of_experience" value={metadata.years_of_experience || ""} onChange={handleMetadataChange} className="bg-white border-slate-300 py-6 rounded-xl" />
                       </div>
+                      <div className="space-y-3 group">
+                        <label className="text-sm font-semibold text-slate-700 tracking-wide uppercase">Previous Works Summary</label>
+                        <Input name="previous_works" value={metadata.previous_works || ""} onChange={handleMetadataChange} placeholder="E.g. Built 3 mobile apps, fixed 12 tractor engines" className="bg-white border-slate-300 py-6 rounded-xl" />
+                      </div>
+                      <div className="space-y-3 group">
+                        <label className="text-sm font-semibold text-slate-700 tracking-wide uppercase">Resume Link (URL)</label>
+                        <Input name="resume_link" value={metadata.resume_link || ""} onChange={handleMetadataChange} placeholder="https://drive.google.com/..." className="bg-white border-slate-300 py-6 rounded-xl" />
+                      </div>
                     </>
                   )}
 
@@ -210,6 +218,32 @@ export default function ProfilePage() {
                       <Input type="file" className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" accept=".pdf,.doc,.docx" />
                     </div>
                   )}
+                </div>
+              )}
+
+              {user?.role === 'laborer' && (
+                <div className="p-6 border border-slate-200 rounded-2xl bg-emerald-50/50 space-y-6">
+                  <h4 className="text-lg font-bold text-slate-800 capitalize border-b border-slate-200 pb-2">Craftsman Details</h4>
+                  
+                  <div className="space-y-3 group">
+                    <label className="text-sm font-semibold text-slate-700 tracking-wide uppercase">Years of Experience</label>
+                    <Input name="years_of_experience" value={metadata.years_of_experience || ""} onChange={handleMetadataChange} placeholder="e.g. 10 years welding" className="bg-white border-slate-300 py-6 rounded-xl" />
+                  </div>
+                  
+                  <div className="space-y-3 group">
+                    <label className="text-sm font-semibold text-slate-700 tracking-wide uppercase">Previous Works Summary</label>
+                    <Input name="previous_works" value={metadata.previous_works || ""} onChange={handleMetadataChange} placeholder="E.g. Built 3 mobile apps, fixed 12 tractor engines" className="bg-white border-slate-300 py-6 rounded-xl" />
+                  </div>
+                  
+                  <div className="space-y-3 group">
+                    <label className="text-sm font-semibold text-slate-700 tracking-wide uppercase">Portfolio / Website URL</label>
+                    <Input name="portfolio" value={metadata.portfolio || ""} onChange={handleMetadataChange} placeholder="https://..." className="bg-white border-slate-300 py-6 rounded-xl" />
+                  </div>
+                  
+                  <div className="space-y-3 group">
+                    <label className="text-sm font-semibold text-slate-700 tracking-wide uppercase">Resume Link (URL)</label>
+                    <Input name="resume_link" value={metadata.resume_link || ""} onChange={handleMetadataChange} placeholder="https://drive.google.com/..." className="bg-white border-slate-300 py-6 rounded-xl" />
+                  </div>
                 </div>
               )}
 

@@ -12,6 +12,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus, faSpinner, faUsers, faBell, faCheck, faTimes, faComments, faMapMarkerAlt, faUserCircle, faHammer, faLaptopCode } from "@fortawesome/free-solid-svg-icons";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { ChatModal } from "@/components/ChatModal";
+import { WorkerProfileModal } from "@/components/WorkerProfileModal";
 import { toast } from "sonner";
 
 const ProjectCountdown = ({ dateStr }: { dateStr: string }) => {
@@ -63,8 +64,10 @@ export default function Dashboard() {
   const [recommendedInnovators, setRecommendedInnovators] = useState<any[]>([]);
   const [pendingRequests, setPendingRequests] = useState<any[]>([]);
   const [activeConnections, setActiveConnections] = useState<any[]>([]);
-  
   const [activeChatConnection, setActiveChatConnection] = useState<any>(null);
+  
+  const [selectedWorkerProfile, setSelectedWorkerProfile] = useState<any>(null);
+  const [selectedProject, setSelectedProject] = useState<any>(null);
   
   const router = useRouter();
 
@@ -95,7 +98,6 @@ export default function Dashboard() {
     return () => { supabase.removeAllChannels(); };
   }, []);
 
-  const [selectedProject, setSelectedProject] = useState<any>(null);
 
   async function fetchMatchesForProject(project: any, profileLoc: string) {
     try {
@@ -632,13 +634,29 @@ export default function Dashboard() {
                               )}
                             </div>
                             {innovator.bio && <p className="text-sm text-slate-600 mt-3 line-clamp-2">{parseProfileMetadata(innovator.bio).bioText || parseProfileMetadata(innovator.bio).domain_interests}</p>}
+                            
+                            {/* Summary Details */}
+                            <div className="mt-4 pt-4 border-t border-slate-200 space-y-1">
+                              {parseProfileMetadata(innovator.bio).years_of_experience && (
+                                <p className="text-xs text-slate-500 font-semibold"><span className="text-emerald-600">Exp:</span> {parseProfileMetadata(innovator.bio).years_of_experience}</p>
+                              )}
+                              {parseProfileMetadata(innovator.bio).previous_works && (
+                                <p className="text-xs text-slate-500 font-semibold line-clamp-1"><span className="text-blue-600">Works:</span> {parseProfileMetadata(innovator.bio).previous_works}</p>
+                              )}
+                            </div>
+
                             <div className="mt-6 flex flex-col gap-2">
-                              <Button onClick={() => handleRequestConnect(innovator.id)} className="w-full bg-slate-100/80 hover:bg-emerald-600 text-slate-900 border border-slate-300 hover:border-emerald-500 rounded-xl py-6 transition-all group">
-                                <FontAwesomeIcon icon={faPlus} className="mr-2 group-hover:scale-110 transition-transform" /> Request to Connect
+                              <Button variant="outline" onClick={() => setSelectedWorkerProfile(innovator)} className="w-full bg-blue-50/50 hover:bg-blue-100 text-blue-700 border-blue-200 rounded-xl py-5">
+                                View Full Profile
                               </Button>
-                              <Button variant="outline" onClick={() => triggerWhatsAppNotification(innovator.phone)} className="w-full bg-green-600/10 hover:bg-green-600 text-green-600 hover:text-white border-green-600/30 rounded-xl py-6 transition-all">
-                                WhatsApp
-                              </Button>
+                              <div className="flex gap-2">
+                                <Button onClick={() => handleRequestConnect(innovator.id)} className="flex-1 bg-slate-100/80 hover:bg-emerald-600 text-slate-900 border border-slate-300 hover:border-emerald-500 rounded-xl py-5 transition-all group">
+                                  <FontAwesomeIcon icon={faPlus} className="mr-2 group-hover:scale-110 transition-transform" /> Connect
+                                </Button>
+                                <Button variant="outline" onClick={() => triggerWhatsAppNotification(innovator.phone)} className="flex-1 bg-green-600/10 hover:bg-green-600 text-green-600 hover:text-white border-green-600/30 rounded-xl py-5 transition-all">
+                                  WhatsApp
+                                </Button>
+                              </div>
                             </div>
                           </CardContent>
                         </Card>
@@ -658,6 +676,18 @@ export default function Dashboard() {
           connection={activeChatConnection} 
           currentUser={userProfile} 
           onClose={() => { setActiveChatConnection(null); loadDashboardData(user.id); }} 
+        />
+      )}
+
+      {/* Worker Profile Modal */}
+      {selectedWorkerProfile && (
+        <WorkerProfileModal 
+          worker={selectedWorkerProfile}
+          onClose={() => setSelectedWorkerProfile(null)}
+          onRequestConnect={(id) => {
+             setSelectedWorkerProfile(null);
+             handleRequestConnect(id);
+          }}
         />
       )}
     </div>

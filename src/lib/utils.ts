@@ -15,6 +15,8 @@ export interface InnovatorMetadata {
   domain_interests?: string;
   organization_gst?: string;
   profile_image?: string;
+  resume_link?: string;
+  previous_works?: string;
 }
 
 export function parseProfileMetadata(bioString: string | null | undefined): InnovatorMetadata {
@@ -31,7 +33,9 @@ export function parseProfileMetadata(bioString: string | null | undefined): Inno
         years_of_experience: data.years_of_experience || "",
         domain_interests: data.domain_interests || "",
         organization_gst: data.organization_gst || "",
-        profile_image: data.profile_image || ""
+        profile_image: data.profile_image || "",
+        resume_link: data.resume_link || "",
+        previous_works: data.previous_works || ""
       };
     }
   } catch (e) {
