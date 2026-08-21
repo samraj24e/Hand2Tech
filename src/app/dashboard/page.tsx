@@ -15,6 +15,8 @@ import { ChatModal } from "@/components/ChatModal";
 import { WorkerProfileModal } from "@/components/WorkerProfileModal";
 import { toast } from "sonner";
 
+import { QRCodeSVG } from 'qrcode.react';
+
 const ProjectCountdown = ({ dateStr }: { dateStr: string }) => {
   const [timeLeft, setTimeLeft] = useState("");
   const [isPast, setIsPast] = useState(false);
@@ -73,6 +75,10 @@ export default function Dashboard() {
   const [reviewRating, setReviewRating] = useState(5);
   const [reviewText, setReviewText] = useState("");
   const [isSubmittingReview, setIsSubmittingReview] = useState(false);
+  
+  const [qrCodeConnection, setQrCodeConnection] = useState<any>(null);
+  const [verifyClosingConnection, setVerifyClosingConnection] = useState<any>(null);
+  const [verifyPin, setVerifyPin] = useState("");
   
   const router = useRouter();
 
@@ -192,7 +198,7 @@ export default function Dashboard() {
     // 5. Get active connections (either I am requester or owner)
     const { data: active } = await supabase.from("connections")
       .select("*, requester:users!requester_id(*), owner:users!owner_id(*), project:projects(*)")
-      .eq("status", "accepted")
+      .in("status", ["accepted", "closing_pending", "completed_unreviewed"])
       .or(`owner_id.eq.${userId},requester_id.eq.${userId}`);
     setActiveConnections(active || []);
 
@@ -252,11 +258,7 @@ export default function Dashboard() {
     const project = projects.find(p => p.status === 'open');
     if (!project) return alert("Create a project first!");
     
-    await supabase.from("connections").insert({
-      project_id: project.id,
-      requester_id: user.id,
-      owner_id: targetUserId // Technically the other person is the "target". Wait, schema says owner_id is project owner. So owner_id is me.
-    // Let's just insert: requester_id: me, owner_id: targetUserId, project_id: my project.
+
     await supabase.from("connections").insert({
         project_id: project.id,
         requester_id: user.id,
@@ -287,10 +289,14 @@ export default function Dashboard() {
       const data = await res.json();
       
       if (data.success) {
-        toast.success("Review submitted! The connection is now completed.");
+        toast.success("Review submitted! The project is now completed.");
         // Mark connection as completed
         await supabase.from("connections").update({ status: 'completed' }).eq('id', reviewingConnection.id);
+        // Also close the project itself!
+        await supabase.from("projects").update({ status: 'closed' }).eq('id', reviewingConnection.project_id);
+        
         setActiveConnections(prev => prev.filter(c => c.id !== reviewingConnection.id));
+        setProjects(prev => prev.map(p => p.id === reviewingConnection.project_id ? { ...p, status: 'closed' } : p));
         setReviewingConnection(null);
         setReviewText("");
         setReviewRating(5);
@@ -301,6 +307,28 @@ export default function Dashboard() {
       toast.error("Error submitting review");
     } finally {
       setIsSubmittingReview(false);
+    }
+  };
+
+  const handleInitiateClose = async (conn: any) => {
+    // 1. Update status to closing_pending
+    await supabase.from("connections").update({ status: 'closing_pending' }).eq('id', conn.id);
+    setQrCodeConnection(conn);
+    toast.success("Closing initiated. Share the QR code with the craftsman!");
+    loadDashboardData(user.id);
+  };
+
+  const handleVerifyClose = async () => {
+    if (!verifyClosingConnection || !verifyPin) return;
+    const correctPin = verifyClosingConnection.id.substring(0, 6).toUpperCase();
+    if (verifyPin.toUpperCase() === correctPin) {
+      await supabase.from("connections").update({ status: 'completed_unreviewed' }).eq('id', verifyClosingConnection.id);
+      toast.success("Project verified as completed!");
+      setVerifyClosingConnection(null);
+      setVerifyPin("");
+      loadDashboardData(user.id);
+    } else {
+      toast.error("Incorrect PIN. Please check with the Innovator.");
     }
   };
 
@@ -482,7 +510,14 @@ export default function Dashboard() {
                   {activeConnections.map(conn => (
                     <div key={conn.id} className="p-5 rounded-2xl bg-white/50 border border-slate-300 flex justify-between items-center hover:border-zinc-600 transition-colors">
                       <div><div className="font-bold text-emerald-600">{conn.project.title}</div><div className="text-sm text-slate-600 mt-1">{conn.requester.name}</div></div>
-                      <Button onClick={() => setActiveChatConnection(conn)} className="rounded-xl"><FontAwesomeIcon icon={faComments} className="mr-2" /> Chat</Button>
+                      <div className="flex gap-2">
+                        {conn.status === 'closing_pending' && (
+                          <Button onClick={() => setVerifyClosingConnection(conn)} className="bg-purple-600 hover:bg-purple-500 rounded-xl px-4 animate-pulse">
+                            Verify Closing
+                          </Button>
+                        )}
+                        <Button onClick={() => setActiveChatConnection(conn)} className="rounded-xl"><FontAwesomeIcon icon={faComments} className="mr-2" /> Chat</Button>
+                      </div>
                     </div>
                   ))}
                 </CardContent>
@@ -638,9 +673,21 @@ export default function Dashboard() {
                             </span>
                           </div>
                           <div className="flex gap-2">
-                            <Button onClick={() => setReviewingConnection(conn)} variant="outline" className="text-blue-600 border-blue-200 hover:bg-blue-50 rounded-xl px-4">
-                              <FontAwesomeIcon icon={faCheck} className="mr-2" /> Complete & Review
-                            </Button>
+                            {conn.status === 'accepted' && (
+                              <Button onClick={() => handleInitiateClose(conn)} variant="outline" className="text-blue-600 border-blue-200 hover:bg-blue-50 rounded-xl px-4">
+                                <FontAwesomeIcon icon={faCheck} className="mr-2" /> Close Project
+                              </Button>
+                            )}
+                            {conn.status === 'closing_pending' && (
+                              <Button onClick={() => setQrCodeConnection(conn)} variant="outline" className="text-purple-600 border-purple-200 hover:bg-purple-50 rounded-xl px-4">
+                                Show QR / PIN
+                              </Button>
+                            )}
+                            {conn.status === 'completed_unreviewed' && (
+                              <Button onClick={() => setReviewingConnection(conn)} variant="default" className="bg-amber-500 hover:bg-amber-400 text-white rounded-xl px-4">
+                                <FontAwesomeIcon icon={faStar} className="mr-2" /> Leave Review
+                              </Button>
+                            )}
                             <Button onClick={() => setActiveChatConnection(conn)} className="bg-emerald-600 rounded-xl px-6">
                               <FontAwesomeIcon icon={faComments} className="mr-2" /> Chat
                             </Button>
@@ -766,6 +813,55 @@ export default function Dashboard() {
                 {isSubmittingReview ? <FontAwesomeIcon icon={faSpinner} className="animate-spin" /> : "Submit Review & Mark Completed"}
               </Button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* QR Code Generator Modal (Innovator) */}
+      {qrCodeConnection && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+          <div className="bg-white rounded-3xl w-full max-w-sm p-8 shadow-2xl relative text-center animate-in slide-in-from-bottom-8">
+            <button onClick={() => setQrCodeConnection(null)} className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200">
+              <FontAwesomeIcon icon={faTimes} />
+            </button>
+            <h2 className="text-2xl font-bold text-slate-900 mb-2">Close Project</h2>
+            <p className="text-sm text-slate-500 mb-6">Show this QR Code or share the PIN with the craftsman to verify completion.</p>
+            
+            <div className="bg-white p-4 inline-block rounded-xl border border-slate-200 shadow-sm mb-6">
+              <QRCodeSVG value={qrCodeConnection.id.substring(0,6).toUpperCase()} size={200} />
+            </div>
+
+            <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 mb-4">
+              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Verification PIN</p>
+              <p className="text-3xl font-black text-slate-800 tracking-[0.25em]">{qrCodeConnection.id.substring(0,6).toUpperCase()}</p>
+            </div>
+            
+            <p className="text-xs text-slate-400 italic">Waiting for craftsman to verify...</p>
+          </div>
+        </div>
+      )}
+
+      {/* Verify Closing Modal (Craftsman) */}
+      {verifyClosingConnection && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+          <div className="bg-white rounded-3xl w-full max-w-sm p-8 shadow-2xl relative text-center animate-in slide-in-from-bottom-8">
+            <button onClick={() => setVerifyClosingConnection(null)} className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200">
+              <FontAwesomeIcon icon={faTimes} />
+            </button>
+            <h2 className="text-2xl font-bold text-slate-900 mb-2">Verify Closing</h2>
+            <p className="text-sm text-slate-500 mb-6">Enter the 6-character PIN provided by the project owner to mark this job as completed.</p>
+            
+            <Input 
+              value={verifyPin}
+              onChange={(e) => setVerifyPin(e.target.value.toUpperCase())}
+              placeholder="Enter PIN"
+              maxLength={6}
+              className="text-center text-3xl font-black tracking-widest h-16 rounded-xl mb-6 uppercase" 
+            />
+
+            <Button onClick={handleVerifyClose} className="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-6 rounded-xl">
+              Verify & Complete
+            </Button>
           </div>
         </div>
       )}
