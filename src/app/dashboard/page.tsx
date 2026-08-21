@@ -552,9 +552,21 @@ export default function Dashboard() {
                     {innovator.bio && <p className="text-sm text-slate-700 mt-4 line-clamp-2 leading-relaxed">{parseProfileMetadata(innovator.bio).bioText || parseProfileMetadata(innovator.bio).domain_interests}</p>}
                     
                     <div className="mt-6 flex flex-col gap-2">
-                      <Button onClick={() => handleRequestConnect(innovator.id)} className="w-full bg-slate-100/80 hover:bg-emerald-600 text-slate-900 border border-slate-300 rounded-xl py-6">
-                        <FontAwesomeIcon icon={faPlus} className="mr-2" /> Connect
-                      </Button>
+                      {(() => {
+                        const existingConn = activeConnections.find(c => c.requester_id === innovator.id || c.owner_id === innovator.id);
+                        if (existingConn) {
+                          return (
+                            <Button onClick={() => setActiveChatConnection(existingConn)} className="w-full bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl py-6">
+                              <FontAwesomeIcon icon={faComments} className="mr-2" /> Chat
+                            </Button>
+                          );
+                        }
+                        return (
+                          <Button onClick={() => handleRequestConnect(innovator.id)} className="w-full bg-slate-100/80 hover:bg-emerald-600 text-slate-900 border border-slate-300 hover:text-white rounded-xl py-6 transition-all">
+                            <FontAwesomeIcon icon={faPlus} className="mr-2" /> Connect
+                          </Button>
+                        );
+                      })()}
                       <Button variant="outline" onClick={() => triggerWhatsAppNotification(innovator.phone)} className="w-full bg-green-600/20 hover:bg-green-600 text-green-400 border border-green-700/50 rounded-xl py-6">
                         WhatsApp
                       </Button>
@@ -904,14 +916,26 @@ export default function Dashboard() {
                               <Button variant="outline" onClick={() => setSelectedWorkerProfile(innovator)} className="w-full bg-blue-50/50 hover:bg-blue-100 text-blue-700 border-blue-200 rounded-xl py-5">
                                 View Full Profile
                               </Button>
-                              <div className="flex gap-2">
-                                <Button onClick={() => handleRequestConnect(innovator.id)} className="flex-1 bg-slate-100/80 hover:bg-emerald-600 text-slate-900 border border-slate-300 hover:border-emerald-500 rounded-xl py-5 transition-all group">
-                                  <FontAwesomeIcon icon={faPlus} className="mr-2 group-hover:scale-110 transition-transform" /> Connect
-                                </Button>
-                                <Button variant="outline" onClick={() => triggerWhatsAppNotification(innovator.phone)} className="flex-1 bg-green-600/10 hover:bg-green-600 text-green-600 hover:text-white border-green-600/30 rounded-xl py-5 transition-all">
-                                  WhatsApp
-                                </Button>
-                              </div>
+                              <div className="mt-6 flex gap-2">
+                                  {(() => {
+                                    const existingConn = activeConnections.find(c => c.project_id === selectedProject.id && (c.requester_id === innovator.id || c.owner_id === innovator.id));
+                                    if (existingConn) {
+                                      return (
+                                        <Button onClick={() => setActiveChatConnection(existingConn)} className="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl py-5 transition-all">
+                                          <FontAwesomeIcon icon={faComments} className="mr-2" /> Chat
+                                        </Button>
+                                      );
+                                    }
+                                    return (
+                                      <Button onClick={() => handleRequestConnect(innovator.id)} className="flex-1 bg-slate-100/80 hover:bg-emerald-600 text-slate-900 border border-slate-300 hover:border-emerald-500 hover:text-white rounded-xl py-5 transition-all group">
+                                        <FontAwesomeIcon icon={faPlus} className="mr-2 group-hover:scale-110 transition-transform" /> Connect
+                                      </Button>
+                                    );
+                                  })()}
+                                  <Button variant="outline" onClick={() => triggerWhatsAppNotification(innovator.phone)} className="flex-1 bg-green-600/10 hover:bg-green-600 text-green-600 hover:text-white border-green-600/30 rounded-xl py-5 transition-all">
+                                    WhatsApp
+                                  </Button>
+                                </div>
                             </div>
                           </CardContent>
                         </Card>

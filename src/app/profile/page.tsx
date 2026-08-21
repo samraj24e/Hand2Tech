@@ -60,6 +60,32 @@ export default function ProfilePage() {
     setMetadata(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [uploadingResume, setUploadingResume] = useState(false);
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, fieldName: 'profile_image_url' | 'resume_link', setUploading: (v: boolean) => void) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+    
+    setUploading(true);
+    const fileName = `${user.id}/${Date.now()}_${file.name}`;
+    
+    const { error: uploadError } = await supabase.storage
+      .from('chat_files')
+      .upload(fileName, file);
+      
+    if (uploadError) {
+      toast.error(`Failed to upload: ${uploadError.message}`);
+      setUploading(false);
+      return;
+    }
+    
+    const { data: { publicUrl } } = supabase.storage.from('chat_files').getPublicUrl(fileName);
+    setMetadata(prev => ({ ...prev, [fieldName]: publicUrl }));
+    toast.success("File uploaded successfully! Don't forget to save changes.");
+    setUploading(false);
+  };
+
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
@@ -208,14 +234,18 @@ export default function ProfilePage() {
                   </div>
 
                   <div className="border-2 border-dashed border-slate-300 rounded-xl p-6 text-center bg-white relative hover:border-blue-500 transition-colors">
-                    <p className="text-sm text-slate-600 font-medium">Click to upload Profile Image / Logo</p>
-                    <Input type="file" className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" accept="image/*" />
+                    <p className="text-sm text-slate-600 font-medium">
+                      {uploadingImage ? <FontAwesomeIcon icon={faSpinner} className="animate-spin text-blue-500" /> : (metadata.profile_image_url ? "Image Uploaded! Click to change" : "Click to upload Profile Image / Logo")}
+                    </p>
+                    <Input type="file" className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" accept="image/*" onChange={(e) => handleFileUpload(e, 'profile_image_url', setUploadingImage)} disabled={uploadingImage} />
                   </div>
 
                   {(cat === 'student' || cat === 'self_finance') && (
                     <div className="border-2 border-dashed border-slate-300 rounded-xl p-6 text-center bg-white relative hover:border-blue-500 transition-colors">
-                      <p className="text-sm text-slate-600 font-medium">Click to upload Resume (PDF)</p>
-                      <Input type="file" className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" accept=".pdf,.doc,.docx" />
+                      <p className="text-sm text-slate-600 font-medium">
+                        {uploadingResume ? <FontAwesomeIcon icon={faSpinner} className="animate-spin text-blue-500" /> : (metadata.resume_link ? "Resume Uploaded! Click to change" : "Click to upload Resume (PDF)")}
+                      </p>
+                      <Input type="file" className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" accept=".pdf,.doc,.docx" onChange={(e) => handleFileUpload(e, 'resume_link', setUploadingResume)} disabled={uploadingResume} />
                     </div>
                   )}
                 </div>
