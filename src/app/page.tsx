@@ -164,7 +164,7 @@ export default function AuthPage() {
 
         <Card className="w-full max-w-md glass-panel-heavy text-slate-900 relative z-10 transition-transform duration-500 hover:scale-[1.01]">
           <CardHeader className="text-center space-y-4 pt-8">
-            <CardTitle className="text-5xl font-extrabold tracking-tight bg-gradient-to-r from-blue-400 via-emerald-400 to-indigo-400 bg-clip-text text-transparent text-glow">
+            <CardTitle className="text-5xl font-extrabold tracking-tight bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
               Hand2Tech
             </CardTitle>
             <CardDescription className="text-slate-600 text-lg font-medium">
@@ -179,7 +179,7 @@ export default function AuthPage() {
                   placeholder="Email address" 
                   value={email}
                   onChange={e => setEmail(e.target.value)}
-                  className="bg-transparent/50 border-slate-300/50 py-6 text-md focus-visible:ring-emerald-500 focus-visible:border-emerald-500 transition-all rounded-xl"
+                  className="bg-white border-slate-300 py-6 text-md focus-visible:ring-emerald-500 focus-visible:border-emerald-500 transition-all rounded-xl shadow-sm"
                   required
                 />
               </div>
@@ -189,14 +189,14 @@ export default function AuthPage() {
                   placeholder="Password" 
                   value={password}
                   onChange={e => setPassword(e.target.value)}
-                  className="bg-transparent/50 border-slate-300/50 py-6 text-md focus-visible:ring-blue-500 focus-visible:border-blue-500 transition-all rounded-xl"
+                  className="bg-white border-slate-300 py-6 text-md focus-visible:ring-blue-500 focus-visible:border-blue-500 transition-all rounded-xl shadow-sm"
                   required
                 />
               </div>
               <Button 
                 type="submit" 
                 disabled={isSigningIn}
-                className="relative overflow-hidden w-full py-7 text-lg bg-zinc-100 hover:bg-white text-zinc-900 font-bold transition-all rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.1)] hover:shadow-[0_0_30px_rgba(255,255,255,0.3)] mt-2 group"
+                className="relative overflow-hidden w-full py-7 text-lg bg-blue-600 hover:bg-blue-700 text-white font-bold transition-all rounded-xl shadow-lg mt-2 group"
               >
                 <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/40 to-transparent translate-x-[-100%] group-hover:animate-[shimmer_1.5s_infinite]"></div>
                 {isSigningIn ? (

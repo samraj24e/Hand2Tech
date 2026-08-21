@@ -93,15 +93,15 @@ export default function ProfilePage() {
       <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-emerald-600/20 rounded-full blur-[120px] pointer-events-none animate-blob animation-delay-4000" />
 
       <div className="max-w-3xl mx-auto space-y-8 relative z-10">
-        <Button variant="ghost" onClick={() => router.push("/dashboard")} className="text-slate-100 hover:text-white bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl px-5 transition-all hover:bg-white/20 hover:-translate-x-1">
+        <Button variant="ghost" onClick={() => router.push("/dashboard")} className="text-slate-600 hover:text-blue-600 bg-white border border-slate-200 rounded-xl px-5 transition-all hover:bg-slate-50 hover:-translate-x-1 shadow-sm">
           <FontAwesomeIcon icon={faArrowLeft} className="mr-3" /> Back to Dashboard
         </Button>
 
-        <Card className="glass-panel-heavy overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
+        <Card className="glass-panel-heavy overflow-hidden shadow-md border border-slate-200">
           <div className="h-1.5 w-full bg-gradient-to-r from-blue-500 via-emerald-400 to-indigo-500 animate-[shimmer_3s_infinite]" />
           <CardHeader className="pt-10 pb-6 px-10">
-            <CardTitle className="text-3xl font-extrabold text-glow tracking-tight flex items-center gap-3">
-              <FontAwesomeIcon icon={faUserCircle} className="text-blue-400" /> Edit Profile
+            <CardTitle className="text-3xl font-extrabold tracking-tight flex items-center gap-3">
+              <FontAwesomeIcon icon={faUserCircle} className="text-blue-500" /> Edit Profile
             </CardTitle>
             <CardDescription className="text-slate-600 text-md mt-2">
               Update your personal information and technical skills to find better matches.
@@ -115,7 +115,7 @@ export default function ProfilePage() {
                 <Input 
                   value={name} 
                   onChange={e => setName(e.target.value)} 
-                  className="bg-slate-50/60 border-slate-300/60 focus-visible:ring-blue-500 py-6 rounded-xl shadow-inner transition-all group-focus-within:border-blue-500/50" 
+                  className="bg-white border-slate-300 focus-visible:ring-blue-500 py-6 rounded-xl shadow-inner transition-all group-focus-within:border-blue-500/50" 
                 />
               </div>
 
@@ -127,7 +127,7 @@ export default function ProfilePage() {
                   placeholder="e.g. San Francisco, CA"
                   value={location} 
                   onChange={e => setLocation(e.target.value)} 
-                  className="bg-slate-50/60 border-slate-300/60 focus-visible:ring-emerald-500 py-6 rounded-xl shadow-inner transition-all group-focus-within:border-emerald-500/50" 
+                  className="bg-white border-slate-300 focus-visible:ring-emerald-500 py-6 rounded-xl shadow-inner transition-all group-focus-within:border-emerald-500/50" 
                 />
               </div>
 
@@ -137,7 +137,7 @@ export default function ProfilePage() {
                   placeholder="A short summary about you and your experience..."
                   value={bio} 
                   onChange={e => setBio(e.target.value)} 
-                  className="bg-slate-50/60 border-slate-300/60 min-h-[120px] focus-visible:ring-indigo-500 rounded-xl shadow-inner transition-all group-focus-within:border-indigo-500/50 p-4 resize-none" 
+                  className="bg-white border-slate-300 min-h-[120px] focus-visible:ring-indigo-500 rounded-xl shadow-inner transition-all group-focus-within:border-indigo-500/50 p-4 resize-none" 
                 />
               </div>
 
@@ -147,7 +147,7 @@ export default function ProfilePage() {
                   placeholder="e.g. +91 9876543210 (For WhatsApp Match Alerts)"
                   value={phone} 
                   onChange={e => setPhone(e.target.value)} 
-                  className="bg-slate-50/60 border-slate-300/60 focus-visible:ring-blue-500 py-6 rounded-xl shadow-inner transition-all group-focus-within:border-blue-500/50" 
+                  className="bg-white border-slate-300 focus-visible:ring-blue-500 py-6 rounded-xl shadow-inner transition-all group-focus-within:border-blue-500/50" 
                 />
               </div>
 
@@ -172,7 +172,7 @@ export default function ProfilePage() {
                     value={newSkill} 
                     onChange={e => setNewSkill(e.target.value)} 
                     onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addSkill(); } }}
-                    className="bg-slate-50/60 border-slate-300/60 focus-visible:ring-emerald-500 py-6 rounded-xl shadow-inner transition-all flex-1" 
+                    className="bg-white border-slate-300 focus-visible:ring-emerald-500 py-6 rounded-xl shadow-inner transition-all flex-1" 
                   />
                   <Button type="button" onClick={addSkill} variant="secondary" className="bg-slate-100 hover:bg-emerald-600 hover:text-blue-700 transition-all rounded-xl shadow-md border border-slate-300 px-6 font-semibold">
                     Add

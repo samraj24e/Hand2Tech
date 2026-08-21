@@ -49,9 +49,10 @@
 }
 
 :root {
-  --background: oklch(0.18 0.05 255); /* Deep Navy Blue */
-  --foreground: oklch(0.985 0 0); /* White */
-  --card: oklch(1 0 0); /* White Cards */
+  /* HireSmart Reference Theme (Clean Light) */
+  --background: oklch(0.98 0 0); /* Very light gray/slate-50 */
+  --foreground: oklch(0.145 0 0); /* Dark slate */
+  --card: oklch(1 0 0); /* Pure White */
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
@@ -147,10 +148,10 @@
 
 @layer utilities {
   .glass-panel {
-    @apply bg-white/70 backdrop-blur-xl border border-white/50 shadow-xl;
+    @apply bg-white border border-slate-200 shadow-sm rounded-xl text-slate-800;
   }
   .glass-panel-heavy {
-    @apply bg-white/90 backdrop-blur-2xl border border-slate-200/80 shadow-[0_8px_32px_rgba(0,0,0,0.05)];
+    @apply bg-white border border-slate-200 shadow-md rounded-2xl text-slate-900;
   }
   .text-glow {
     text-shadow: 0 0 20px rgba(59, 130, 246, 0.4);

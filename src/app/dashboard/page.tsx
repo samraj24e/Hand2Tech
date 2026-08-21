@@ -219,14 +219,14 @@ export default function Dashboard() {
 
       {/* Floating Navbar */}
       <div className="sticky top-4 z-40 px-4 max-w-7xl mx-auto">
-        <nav className="glass-panel-heavy rounded-2xl flex items-center justify-between px-6 py-4 shadow-[0_10px_40px_rgba(0,0,0,0.5)] border border-slate-300/50">
-          <div className="text-2xl font-extrabold bg-gradient-to-r from-blue-400 via-emerald-400 to-indigo-400 bg-clip-text text-transparent text-glow tracking-tight cursor-default">
+        <nav className="glass-panel-heavy rounded-2xl flex items-center justify-between px-6 py-4 shadow-sm border border-slate-200">
+          <div className="text-2xl font-extrabold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent tracking-tight cursor-default">
             Hand2Tech
           </div>
           <div className="flex items-center gap-6">
             <DropdownMenu>
-              <DropdownMenuTrigger className="relative p-2.5 bg-slate-100/50 hover:bg-slate-200/80 rounded-xl transition-all shadow-inner hover:shadow-[0_0_15px_rgba(59,130,246,0.3)]">
-                  <FontAwesomeIcon icon={faBell} className="text-slate-700 text-lg" />
+              <DropdownMenuTrigger className="relative p-2.5 bg-slate-100 hover:bg-slate-200 rounded-xl transition-all">
+                  <FontAwesomeIcon icon={faBell} className="text-slate-600 text-lg" />
                   {pendingRequests.length > 0 && (
                     <span className="absolute top-1 right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-zinc-900 animate-pulse" />
                   )}
@@ -265,7 +265,7 @@ export default function Dashboard() {
           // Laborer View (Original list layout)
           <div className="space-y-8">
             <div className="flex items-center justify-between px-2">
-              <h2 className="text-3xl font-bold tracking-tight text-glow">Recommended Projects & People</h2>
+              <h2 className="text-3xl font-bold tracking-tight text-slate-900">Recommended Projects & People</h2>
               <div className="w-12 h-12 rounded-full bg-slate-100/50 flex items-center justify-center border border-slate-300/50 backdrop-blur-sm">
                 <FontAwesomeIcon icon={faUsers} className="text-emerald-400 text-xl drop-shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
               </div>
@@ -314,7 +314,7 @@ export default function Dashboard() {
               // Level 1: Project List or Create Project
               <>
                 <div className="flex items-center justify-between px-2 mb-6">
-                  <h2 className="text-3xl font-bold tracking-tight text-glow">My Projects</h2>
+                  <h2 className="text-3xl font-bold tracking-tight text-slate-900">My Projects</h2>
                 </div>
 
                 {projects.length === 0 ? (
@@ -417,8 +417,8 @@ export default function Dashboard() {
                 )}
 
                 <div>
-                  <h3 className="text-2xl font-bold mt-12 mb-6 text-slate-100 flex items-center gap-3">
-                    <FontAwesomeIcon icon={faUsers} className="text-emerald-400" /> Matching Recommended Craftsmen
+                  <h3 className="text-2xl font-bold mt-12 mb-6 text-slate-800 flex items-center gap-3">
+                    <FontAwesomeIcon icon={faUsers} className="text-emerald-500" /> Matching Recommended Craftsmen
                   </h3>
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
