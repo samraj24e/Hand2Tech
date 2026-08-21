@@ -304,6 +304,9 @@ export default function Dashboard() {
     }
     
     toast.success(`Request sent for project: ${projectToConnect.title}`);
+    if (user?.id) {
+      loadDashboardData(user.id);
+    }
   };
 
   const handleSubmitReview = async () => {
@@ -589,15 +592,75 @@ export default function Dashboard() {
             {!selectedProject ? (
               // Level 1: Project List or Create Project
               <>
-                <div className="flex items-center justify-between px-2 mb-6">
-                  <h2 className="text-3xl font-bold tracking-tight text-slate-900">My Projects</h2>
-                </div>
-
-                {projects.length === 0 ? (
-                  <div className="py-16 text-center text-slate-600 glass-panel rounded-2xl border-dashed border-2 border-slate-300/50 mb-10">
-                    <p className="text-2xl font-bold text-slate-700">No projects found.</p>
-                    <p className="text-md mt-2">Create a project below to start finding skilled craftsmen.</p>
+                {activeChatConnection ? (
+                  <div className="mb-8 animate-in fade-in slide-in-from-bottom-8">
+                    <Button variant="ghost" onClick={() => setActiveChatConnection(null)} className="mb-4 text-slate-500 hover:text-slate-800">
+                      ← Back to Dashboard
+                    </Button>
+                    <ChatUI 
+                      connection={activeChatConnection} 
+                      currentUser={userProfile} 
+                      onClose={() => { setActiveChatConnection(null); loadDashboardData(user.id); }} 
+                    />
                   </div>
+                ) : (
+                  <>
+                    {/* Global Active Collaborations */}
+                    {activeConnections.length > 0 && (
+                      <div className="mb-12">
+                        <div className="flex items-center justify-between px-2 mb-6">
+                          <h2 className="text-3xl font-bold tracking-tight text-slate-900">Active Collaborations</h2>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                          {activeConnections.map(conn => (
+                            <Card key={conn.id} className="glass-panel border-emerald-300 hover:shadow-xl transition-all">
+                              <CardContent className="p-5 flex flex-col h-full justify-between gap-4">
+                                <div>
+                                  <div className="font-bold text-emerald-600 flex items-center gap-2">
+                                    {conn.project.title}
+                                    {conn.status === 'pending' && <span className="text-[10px] bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full uppercase tracking-wider">Pending</span>}
+                                  </div>
+                                  <div className="text-sm text-slate-600 mt-2 font-medium flex items-center gap-2">
+                                    <FontAwesomeIcon icon={faUserCircle} className="text-slate-400" />
+                                    {conn.requester_id === user?.id ? conn.owner?.name || "Unknown" : conn.requester?.name || "Unknown"}
+                                  </div>
+                                </div>
+                                <div className="flex gap-2 mt-2">
+                                  {conn.status === 'accepted' && (
+                                    <Button onClick={() => handleInitiateClose(conn)} variant="outline" className="flex-1 text-blue-600 border-blue-200 hover:bg-blue-50 rounded-xl">
+                                      <FontAwesomeIcon icon={faCheck} className="mr-2" /> Close
+                                    </Button>
+                                  )}
+                                  {conn.status === 'closing_pending' && (
+                                    <Button onClick={() => setQrCodeConnection(conn)} variant="outline" className="flex-1 text-purple-600 border-purple-200 hover:bg-purple-50 rounded-xl">
+                                      QR/PIN
+                                    </Button>
+                                  )}
+                                  {conn.status === 'completed_unreviewed' && (
+                                    <Button onClick={() => setReviewingConnection(conn)} className="flex-1 bg-amber-500 hover:bg-amber-400 text-white rounded-xl">
+                                      <FontAwesomeIcon icon={faStar} className="mr-2" /> Review
+                                    </Button>
+                                  )}
+                                  <Button onClick={() => setActiveChatConnection(conn)} className="flex-1 bg-emerald-600 rounded-xl">
+                                    <FontAwesomeIcon icon={faComments} className="mr-2" /> Chat
+                                  </Button>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="flex items-center justify-between px-2 mb-6">
+                      <h2 className="text-3xl font-bold tracking-tight text-slate-900">My Projects</h2>
+                    </div>
+    
+                    {projects.length === 0 ? (
+                      <div className="py-16 text-center text-slate-600 glass-panel rounded-2xl border-dashed border-2 border-slate-300/50 mb-10">
+                        <p className="text-2xl font-bold text-slate-700">No projects found.</p>
+                        <p className="text-md mt-2">Create a project below to start finding skilled craftsmen.</p>
+                      </div>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
                     {projects.map(project => (
@@ -660,6 +723,8 @@ export default function Dashboard() {
                     </form>
                   </CardContent>
                 </Card>
+              </>
+              )}
               </>
             ) : (
               // Level 2: Selected Project View
