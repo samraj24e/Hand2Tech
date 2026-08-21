@@ -390,7 +390,6 @@ export default function Dashboard() {
 
                 {/* Create Project Form always available at root */}
                 <Card className="glass-panel max-w-3xl border-slate-300/50 hover:shadow-lg transition-all">
-                  <div className="h-1.5 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 animate-[shimmer_3s_infinite]" />
                   <CardHeader>
                     <CardTitle className="text-2xl font-bold">Create New Project</CardTitle>
                     <CardDescription>Describe what you need built, and our AI will extract the skills and match you.</CardDescription>

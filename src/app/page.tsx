@@ -269,7 +269,6 @@ export default function AuthPage() {
        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-3xl h-[500px] bg-gradient-to-tr from-blue-600/30 to-emerald-600/30 rounded-full blur-[120px] -z-10 animate-blob" />
        
       <Card className="w-full max-w-xl glass-panel-heavy text-slate-900 relative z-10 transition-all duration-500 overflow-hidden">
-        <div className="h-1.5 w-full bg-gradient-to-r from-blue-500 via-emerald-400 to-indigo-500 animate-[shimmer_3s_infinite]" />
         <CardHeader className="text-center pt-8">
           <CardTitle className="text-4xl font-extrabold text-glow">
             {isReturning ? "Welcome Back!" : "Complete Your Profile"}

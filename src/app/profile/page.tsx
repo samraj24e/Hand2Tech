@@ -106,7 +106,6 @@ export default function ProfilePage() {
         </Button>
 
         <Card className="glass-panel-heavy overflow-hidden shadow-md border border-slate-200">
-          <div className="h-1.5 w-full bg-gradient-to-r from-blue-500 via-emerald-400 to-indigo-500 animate-[shimmer_3s_infinite]" />
           <CardHeader className="pt-10 pb-6 px-10">
             <CardTitle className="text-3xl font-extrabold tracking-tight flex items-center gap-3">
               <FontAwesomeIcon icon={faUserCircle} className="text-blue-500" /> Edit Profile
