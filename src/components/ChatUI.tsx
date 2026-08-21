@@ -2,14 +2,15 @@
 
 import { useEffect, useState, useRef } from "react";
 import { supabase } from "@/lib/supabase";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPaperPlane, faTimes, faSpinner, faPaperclip, faTasks, faCheckCircle, faCircle } from "@fortawesome/free-solid-svg-icons";
 import { toast } from "sonner";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
-export function ChatModal({ connection, currentUser, onClose }: { connection: any, currentUser: any, onClose: () => void }) {
+export function ChatUI({ connection, currentUser, onClose }: { connection: any, currentUser: any, onClose: () => void }) {
   const [messages, setMessages] = useState<any[]>([]);
   const [milestones, setMilestones] = useState<any[]>([]);
   const [text, setText] = useState("");
@@ -152,11 +153,9 @@ export function ChatModal({ connection, currentUser, onClose }: { connection: an
 
   if (loading) {
     return (
-      <Dialog open={!!connection} onOpenChange={onClose}>
-        <DialogContent className="sm:max-w-md bg-white border-slate-200 text-slate-900 flex justify-center p-10">
-          <FontAwesomeIcon icon={faSpinner} className="animate-spin text-3xl text-blue-500" />
-        </DialogContent>
-      </Dialog>
+      <Card className="w-full flex justify-center p-10 h-[500px] items-center border border-slate-200 shadow-sm rounded-3xl">
+        <FontAwesomeIcon icon={faSpinner} className="animate-spin text-3xl text-blue-500" />
+      </Card>
     );
   }
 
@@ -164,31 +163,27 @@ export function ChatModal({ connection, currentUser, onClose }: { connection: an
 
   return (
     <>
-    <Dialog open={!!connection} onOpenChange={onClose}>
-      {/* Added backdrop blur to the modal overlay implicitly through Dialog in shadcn, but we can style DialogContent */}
-      <DialogContent className="sm:max-w-4xl glass-panel-heavy p-0 overflow-hidden flex flex-col md:flex-row h-[700px] border-slate-300/60 shadow-[0_20px_60px_rgba(0,0,0,0.8)] rounded-3xl">
+      <Card className="w-full glass-panel-heavy p-0 overflow-hidden flex flex-col md:flex-row h-[700px] border-slate-300/60 shadow-lg rounded-3xl relative">
         
         {/* Main Chat Area */}
         <div className={`flex flex-col h-full flex-1 transition-all duration-300 ${showMilestones ? 'w-full md:w-2/3' : 'w-full'}`}>
-          <DialogHeader className="p-5 border-b border-slate-200/80 bg-slate-50/40 backdrop-blur-xl sticky top-0 z-10">
-            <div className="flex items-center justify-between">
-              <div>
-                <DialogTitle className="text-xl font-bold flex items-center gap-2">
-                  <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.8)]" />
-                  Project Chat
-                </DialogTitle>
-                <DialogDescription className="text-slate-600 mt-1">Secure realtime communication</DialogDescription>
-              </div>
-              <div className="flex gap-3">
-                <Button variant="outline" size="sm" onClick={() => setShowMilestones(!showMilestones)} className={`transition-all rounded-xl border-slate-300 ${showMilestones ? 'bg-blue-600/20 text-blue-400 border-blue-500/50' : 'bg-slate-100/50 hover:bg-slate-200'}`}>
-                  <FontAwesomeIcon icon={faTasks} className="mr-2" /> Milestones
-                </Button>
-                <Button variant="destructive" size="sm" onClick={closeProject} className="rounded-xl bg-red-600/90 hover:bg-red-500 shadow-[0_0_15px_rgba(239,68,68,0.2)]">
-                  <FontAwesomeIcon icon={faTimes} className="mr-2" /> Close
-                </Button>
-              </div>
+          <div className="p-5 border-b border-slate-200/80 bg-slate-50/90 backdrop-blur-xl sticky top-0 z-10 flex items-center justify-between">
+            <div>
+              <h3 className="text-xl font-bold flex items-center gap-2">
+                <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.8)]" />
+                Project Chat
+              </h3>
+              <p className="text-sm text-slate-500 mt-1">Secure realtime communication</p>
             </div>
-          </DialogHeader>
+            <div className="flex gap-3">
+              <Button variant="outline" size="sm" onClick={() => setShowMilestones(!showMilestones)} className={`transition-all rounded-xl border-slate-300 ${showMilestones ? 'bg-blue-600/20 text-blue-400 border-blue-500/50' : 'bg-slate-100/50 hover:bg-slate-200'}`}>
+                <FontAwesomeIcon icon={faTasks} className="mr-2" /> Milestones
+              </Button>
+              <Button variant="ghost" size="sm" onClick={onClose} className="rounded-xl text-slate-500 hover:text-slate-800 hover:bg-slate-200">
+                <FontAwesomeIcon icon={faTimes} className="mr-2" /> Hide
+              </Button>
+            </div>
+          </div>
 
           <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-slate-50/80 relative">
             {/* Ambient glow inside chat */}
@@ -288,8 +283,7 @@ export function ChatModal({ connection, currentUser, onClose }: { connection: an
             )}
           </div>
         )}
-      </DialogContent>
-    </Dialog>
+      </Card>
 
     {/* Rating Modal */}
     {showRatingModal && (

@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus, faSpinner, faUsers, faBell, faCheck, faTimes, faComments, faMapMarkerAlt, faUserCircle, faHammer, faLaptopCode } from "@fortawesome/free-solid-svg-icons";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { ChatModal } from "@/components/ChatModal";
+import { ChatUI } from "@/components/ChatUI";
 import { WorkerProfileModal } from "@/components/WorkerProfileModal";
 import { toast } from "sonner";
 
@@ -512,14 +512,27 @@ export default function Dashboard() {
         {isLaborer ? (
           // Laborer View (Original list layout)
           <div className="space-y-8">
-            <div className="flex items-center justify-between px-2">
-              <h2 className="text-3xl font-bold tracking-tight text-slate-900">Recommended Projects & People</h2>
-              <div className="w-12 h-12 rounded-full bg-slate-100/50 flex items-center justify-center border border-slate-300/50 backdrop-blur-sm">
-                <FontAwesomeIcon icon={faUsers} className="text-emerald-400 text-xl drop-shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
+            {activeChatConnection ? (
+              <div className="mb-8">
+                <Button variant="ghost" onClick={() => setActiveChatConnection(null)} className="mb-4 text-slate-500 hover:text-slate-800">
+                  ← Back to Dashboard
+                </Button>
+                <ChatUI 
+                  connection={activeChatConnection} 
+                  currentUser={userProfile} 
+                  onClose={() => { setActiveChatConnection(null); loadDashboardData(user.id); }} 
+                />
               </div>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            ) : (
+              <>
+                <div className="flex items-center justify-between px-2">
+                  <h2 className="text-3xl font-bold tracking-tight text-slate-900">Recommended Projects & People</h2>
+                  <div className="w-12 h-12 rounded-full bg-slate-100/50 flex items-center justify-center border border-slate-300/50 backdrop-blur-sm">
+                    <FontAwesomeIcon icon={faUsers} className="text-emerald-400 text-xl drop-shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {recommendedInnovators.map(innovator => (
                 <Card key={innovator.id} className="glass-panel border-slate-300/40 hover:border-emerald-500/50 transition-all duration-300 group hover:-translate-y-1 hover:shadow-[0_15px_30px_rgba(0,0,0,0.4)]">
                   <CardContent className="p-7">
@@ -560,6 +573,8 @@ export default function Dashboard() {
                   ))}
                 </CardContent>
               </Card>
+            )}
+            </>
             )}
           </div>
         ) : (
@@ -715,8 +730,18 @@ export default function Dashboard() {
                   </CardContent>
                 </Card>
 
-                {/* Project Chats */}
-                {activeConnections.filter(c => c.project_id === selectedProject.id).length > 0 && (
+                {activeChatConnection ? (
+                  <div className="mb-8 animate-in fade-in slide-in-from-bottom-8">
+                    <ChatUI 
+                      connection={activeChatConnection} 
+                      currentUser={userProfile} 
+                      onClose={() => { setActiveChatConnection(null); loadDashboardData(user.id); }} 
+                    />
+                  </div>
+                ) : (
+                  <>
+                    {/* Project Chats */}
+                    {activeConnections.filter(c => c.project_id === selectedProject.id).length > 0 && (
                   <Card className="glass-panel border-emerald-300">
                     <CardHeader>
                       <CardTitle className="text-emerald-700 flex items-center gap-2">
@@ -815,20 +840,14 @@ export default function Dashboard() {
                     )}
                   </div>
                 </div>
+                </>
+                )}
               </div>
             )}
           </div>
         )}
       </div>
 
-      {/* Chat Modal */}
-      {activeChatConnection && (
-        <ChatModal 
-          connection={activeChatConnection} 
-          currentUser={userProfile} 
-          onClose={() => { setActiveChatConnection(null); loadDashboardData(user.id); }} 
-        />
-      )}
 
       {/* Worker Profile Modal */}
       {selectedWorkerProfile && (
