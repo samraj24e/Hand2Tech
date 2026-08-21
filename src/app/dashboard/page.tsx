@@ -61,11 +61,16 @@ export default function Dashboard() {
   const [selectedProject, setSelectedProject] = useState<any>(null);
 
   const fetchMatchesForProject = async (project: any, profileLoc: string) => {
-    const { data: matches } = await supabase.rpc("find_matching_innovators", { 
-      req_skills: project.required_skills,
-      req_location: project.location || profileLoc
-    });
-    setRecommendedInnovators((matches || []).filter((m: any) => m.id !== user?.id));
+    try {
+      const { data: matches, error } = await supabase.rpc("find_matching_innovators", { 
+        req_skills: project.required_skills || [],
+        req_location: project.location || profileLoc || "Earth" // fallback if null
+      });
+      if (error) console.error("Matches RPC Error:", error);
+      setRecommendedInnovators((matches || []).filter((m: any) => m.id !== user?.id));
+    } catch (e) {
+      console.error("fetchMatches failed", e);
+    }
   };
 
   const loadDashboardData = async (userId: string) => {
@@ -308,7 +313,7 @@ export default function Dashboard() {
                     {projects.map(project => (
                       <Card 
                         key={project.id} 
-                        onClick={() => { setSelectedProject(project); fetchMatchesForProject(project, userProfile.location); }}
+                        onClick={() => { setSelectedProject(project); fetchMatchesForProject(project, userProfile?.location); }}
                         className="glass-panel cursor-pointer hover:border-blue-500 hover:shadow-2xl transition-all hover:-translate-y-1"
                       >
                         <CardContent className="p-6">
@@ -359,7 +364,7 @@ export default function Dashboard() {
                     <CardDescription className="text-lg text-slate-700 mt-2">{selectedProject.description}</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    {selectedProject.bom_estimate && selectedProject.bom_estimate.length > 0 && (
+                    {selectedProject.bom_estimate && Array.isArray(selectedProject.bom_estimate) && selectedProject.bom_estimate.length > 0 && (
                       <div className="mt-4 p-5 bg-white/60 rounded-xl border border-slate-200">
                         <p className="font-bold text-yellow-600 mb-3 uppercase tracking-widest text-sm flex items-center gap-2">
                           <FontAwesomeIcon icon={faLaptopCode} /> Scrap-to-Proto BOM
