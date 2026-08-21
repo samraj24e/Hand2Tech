@@ -9,9 +9,9 @@ const openai = new OpenAI({
 
 export async function POST(request: Request) {
   try {
-    const { title, description, userId } = await request.json();
+    const { title, descriptionText, duration, closing_time, distance_limit, project_phase, userId } = await request.json();
 
-    if (!title || !description || !userId) {
+    if (!title || !descriptionText || !userId) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
@@ -30,7 +30,7 @@ export async function POST(request: Request) {
           },
           {
             role: 'user',
-            content: `Extract info for this project:\nTitle: ${title}\nDescription: ${description}`,
+            content: `Extract info for this project:\nTitle: ${title}\nDescription: ${descriptionText}\nDuration: ${duration}\nPhase: ${project_phase}`,
           },
         ],
         response_format: { type: "json_object" },
@@ -51,10 +51,18 @@ export async function POST(request: Request) {
       }
     } catch (aiError) {
       console.error("AI processing failed, falling back to basic project creation:", aiError);
-      // Fallback if AI fails (e.g. rate limit, api key missing)
       required_skills = ["general labor"];
       bom_estimate = ["Basic tools", "Standard materials"];
     }
+
+    const description = JSON.stringify({
+      descriptionText,
+      duration,
+      closing_time,
+      distance_limit,
+      budget,
+      project_phase
+    });
 
     // Save project to Supabase
     const { data: project, error } = await supabase

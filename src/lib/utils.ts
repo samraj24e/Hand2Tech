@@ -44,3 +44,38 @@ export function parseProfileMetadata(bioString: string | null | undefined): Inno
 export function stringifyProfileMetadata(metadata: InnovatorMetadata): string {
   return JSON.stringify(metadata);
 }
+
+export interface ProjectMetadata {
+  descriptionText: string;
+  closing_time?: string; // ISO date string
+  distance_limit?: string; // e.g. "exact", "50km", "any"
+  duration?: string; // e.g. "2 weeks", "3 months"
+  budget?: string; // e.g. "Unpaid", "Paid", "Equity"
+  project_phase?: string; // e.g. "Idea", "Prototype", "Production"
+}
+
+export function parseProjectMetadata(descString: string | null | undefined): ProjectMetadata {
+  if (!descString) return { descriptionText: "" };
+  try {
+    const data = JSON.parse(descString);
+    if (typeof data === "object" && data !== null && !Array.isArray(data)) {
+      return {
+        descriptionText: data.descriptionText || "",
+        closing_time: data.closing_time || "",
+        distance_limit: data.distance_limit || "any",
+        duration: data.duration || "",
+        budget: data.budget || "",
+        project_phase: data.project_phase || ""
+      };
+    }
+  } catch (e) {
+    // Legacy description string
+    return { descriptionText: descString };
+  }
+  return { descriptionText: descString };
+}
+
+export function stringifyProjectMetadata(metadata: ProjectMetadata): string {
+  return JSON.stringify(metadata);
+}
+

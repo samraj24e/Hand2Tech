@@ -5,7 +5,7 @@ import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { parseProfileMetadata } from "@/lib/utils";
+import { parseProfileMetadata, parseProjectMetadata } from "@/lib/utils";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -22,6 +22,10 @@ export default function Dashboard() {
   
   const [newProjectTitle, setNewProjectTitle] = useState("");
   const [newProjectDesc, setNewProjectDesc] = useState("");
+  const [newProjectDuration, setNewProjectDuration] = useState("");
+  const [newProjectClosingTime, setNewProjectClosingTime] = useState("");
+  const [newProjectDistanceLimit, setNewProjectDistanceLimit] = useState("any");
+  const [newProjectPhase, setNewProjectPhase] = useState("Idea");
   const [isCreatingProject, setIsCreatingProject] = useState(false);
   
   const [recommendedInnovators, setRecommendedInnovators] = useState<any[]>([]);
@@ -71,7 +75,34 @@ export default function Dashboard() {
       
       let finalMatches = (matches || []).filter((m: any) => m.id !== user?.id);
       
-      // Fallback: If no exact matches found, just grab some top-rated laborers so the page isn't empty
+      // Calculate Skill Match Score
+      const reqSkills = project.required_skills || [];
+      finalMatches = finalMatches.map((m: any) => {
+        let matchCount = 0;
+        const userSkills = m.skills || [];
+        reqSkills.forEach((rs: string) => {
+          if (userSkills.some((us: string) => us.toLowerCase() === rs.toLowerCase())) matchCount++;
+        });
+        const matchScore = reqSkills.length > 0 ? Math.round((matchCount / reqSkills.length) * 100) : 0;
+        return { ...m, matchScore };
+      });
+
+      // Filter by Proximity (Distance Limit)
+      const pMetadata = parseProjectMetadata(project.description);
+      if (pMetadata.distance_limit === "exact" && project.location) {
+        finalMatches = finalMatches.filter((m: any) => m.location?.toLowerCase() === project.location?.toLowerCase());
+      } else if (pMetadata.distance_limit === "50km" && project.location) {
+        // Mock distance filter for MVP: prioritize exact match or add random fuzz
+        // For now, let's keep all but sort exact matches first
+      }
+
+      // Sort by Match Score, then Rating
+      finalMatches.sort((a: any, b: any) => {
+        if (b.matchScore !== a.matchScore) return b.matchScore - a.matchScore;
+        return (b.rating || 0) - (a.rating || 0);
+      });
+      
+      // Fallback: If no exact matches found
       if (finalMatches.length === 0) {
         const { data: backup } = await supabase.from("users")
           .select("*")
@@ -79,7 +110,7 @@ export default function Dashboard() {
           .neq("id", user?.id)
           .order("rating", { ascending: false })
           .limit(6);
-        finalMatches = backup || [];
+        finalMatches = (backup || []).map((m:any) => ({ ...m, matchScore: 0 }));
       }
       
       setRecommendedInnovators(finalMatches);
@@ -135,7 +166,11 @@ export default function Dashboard() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           title: newProjectTitle,
-          description: newProjectDesc,
+          descriptionText: newProjectDesc,
+          duration: newProjectDuration,
+          closing_time: newProjectClosingTime,
+          distance_limit: newProjectDistanceLimit,
+          project_phase: newProjectPhase,
           userId: user.id
         })
       });
@@ -157,6 +192,14 @@ export default function Dashboard() {
       alert("Error posting project");
     } finally {
       setIsCreatingProject(false);
+    }
+  };
+
+  const handleDeleteProject = async (projectId: string) => {
+    if (window.confirm("Are you sure you want to delete this project?")) {
+      await supabase.from("projects").delete().eq("id", projectId);
+      setProjects(prev => prev.filter(p => p.id !== projectId));
+      if (selectedProject?.id === projectId) setSelectedProject(null);
     }
   };
 
@@ -397,7 +440,7 @@ export default function Dashboard() {
                         <div className="w-full h-full p-6">
                           <h4 className="font-bold text-xl text-blue-600 mb-2 line-clamp-1">{project.title}</h4>
                           <span className="text-xs px-2 py-1 rounded-md bg-slate-200 text-slate-700 uppercase">{project.status}</span>
-                          <p className="text-sm text-slate-600 mt-4 line-clamp-2">{project.description}</p>
+                          <p className="text-sm text-slate-600 mt-4 line-clamp-2">{parseProjectMetadata(project.description).descriptionText}</p>
                           <div className="mt-6 flex justify-end text-sm font-bold text-blue-500">View Details & Matches →</div>
                         </div>
                       </Card>
@@ -413,9 +456,35 @@ export default function Dashboard() {
                   </CardHeader>
                   <CardContent>
                     <form onSubmit={handleCreateProject} className="space-y-5">
-                      <Input placeholder="Project Title" value={newProjectTitle} onChange={e => setNewProjectTitle(e.target.value)} className="bg-white py-6" required />
-                      <Textarea placeholder="Describe the physical labor needed..." value={newProjectDesc} onChange={e => setNewProjectDesc(e.target.value)} className="bg-white min-h-[140px] p-4" required />
-                      <Button type="submit" disabled={isCreatingProject} className="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-6 rounded-xl shadow-[0_0_20px_rgba(59,130,246,0.3)]">
+                      <Input placeholder="Project Title" value={newProjectTitle} onChange={e => setNewProjectTitle(e.target.value)} className="bg-white py-6 rounded-xl" required />
+                      <Textarea placeholder="Describe the physical labor needed, materials required, and the goal of the project..." value={newProjectDesc} onChange={e => setNewProjectDesc(e.target.value)} className="bg-white min-h-[140px] p-4 rounded-xl" required />
+                      
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <Input placeholder="Duration (e.g. 2 weeks)" value={newProjectDuration} onChange={e => setNewProjectDuration(e.target.value)} className="bg-white py-6 rounded-xl" />
+                        <Input placeholder="Closing Date (e.g. 2026-12-01)" type="date" value={newProjectClosingTime} onChange={e => setNewProjectClosingTime(e.target.value)} className="bg-white py-6 rounded-xl" />
+                        
+                        <select 
+                          value={newProjectDistanceLimit} 
+                          onChange={e => setNewProjectDistanceLimit(e.target.value)} 
+                          className="bg-white py-3 px-4 rounded-xl border border-slate-300 w-full"
+                        >
+                          <option value="any">Any Distance</option>
+                          <option value="50km">Within 50km</option>
+                          <option value="exact">Exact Location Only</option>
+                        </select>
+                        
+                        <select 
+                          value={newProjectPhase} 
+                          onChange={e => setNewProjectPhase(e.target.value)} 
+                          className="bg-white py-3 px-4 rounded-xl border border-slate-300 w-full"
+                        >
+                          <option value="Idea">Idea Phase</option>
+                          <option value="Prototype">Prototype</option>
+                          <option value="Production">Production</option>
+                        </select>
+                      </div>
+
+                      <Button type="submit" disabled={isCreatingProject} className="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-6 rounded-xl shadow-[0_0_20px_rgba(59,130,246,0.3)] mt-2">
                         {isCreatingProject ? <FontAwesomeIcon icon={faSpinner} className="animate-spin text-xl" /> : "Post Project"}
                       </Button>
                     </form>
@@ -425,12 +494,17 @@ export default function Dashboard() {
             ) : (
               // Level 2: Selected Project View
               <div className="space-y-8 animate-in slide-in-from-right-8 duration-300">
-                <button 
-                  onClick={() => setSelectedProject(null)} 
-                  className="text-blue-600 hover:text-blue-700 font-bold flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-blue-50 transition-colors"
-                >
-                  <FontAwesomeIcon icon={faPlus} className="rotate-45" /> Back to My Projects
-                </button>
+                <div className="flex justify-between items-center">
+                  <button 
+                    onClick={() => setSelectedProject(null)} 
+                    className="text-blue-600 hover:text-blue-700 font-bold flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-blue-50 transition-colors"
+                  >
+                    <FontAwesomeIcon icon={faPlus} className="rotate-45" /> Back to My Projects
+                  </button>
+                  <Button variant="destructive" onClick={() => handleDeleteProject(selectedProject.id)} className="bg-red-500/10 text-red-600 hover:bg-red-600 hover:text-white rounded-xl">
+                    Delete Project
+                  </Button>
+                </div>
                 
                 <Card className="glass-panel-heavy border-blue-200 shadow-2xl">
                   <CardHeader>
@@ -438,7 +512,20 @@ export default function Dashboard() {
                       <CardTitle className="text-3xl font-extrabold text-blue-700">{selectedProject.title}</CardTitle>
                       <span className="text-xs px-3 py-1 rounded-md bg-blue-100 text-blue-800 uppercase tracking-wider font-bold">{selectedProject.status}</span>
                     </div>
-                    <CardDescription className="text-lg text-slate-700 mt-2">{selectedProject.description}</CardDescription>
+                    
+                    <div className="flex flex-wrap gap-3 mt-3">
+                      {parseProjectMetadata(selectedProject.description).duration && (
+                        <span className="text-xs font-semibold bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full">Duration: {parseProjectMetadata(selectedProject.description).duration}</span>
+                      )}
+                      {parseProjectMetadata(selectedProject.description).closing_time && (
+                        <span className="text-xs font-semibold bg-rose-100 text-rose-800 px-3 py-1 rounded-full">Deadline: {parseProjectMetadata(selectedProject.description).closing_time}</span>
+                      )}
+                      {parseProjectMetadata(selectedProject.description).project_phase && (
+                        <span className="text-xs font-semibold bg-purple-100 text-purple-800 px-3 py-1 rounded-full">Phase: {parseProjectMetadata(selectedProject.description).project_phase}</span>
+                      )}
+                    </div>
+
+                    <CardDescription className="text-lg text-slate-700 mt-4 whitespace-pre-wrap">{parseProjectMetadata(selectedProject.description).descriptionText}</CardDescription>
                   </CardHeader>
                   <CardContent>
                     {selectedProject.bom_estimate && Array.isArray(selectedProject.bom_estimate) && selectedProject.bom_estimate.length > 0 && (
@@ -494,7 +581,12 @@ export default function Dashboard() {
                       recommendedInnovators.map(innovator => (
                         <Card key={innovator.id} className="glass-panel hover:shadow-[0_15px_30px_rgba(0,0,0,0.1)] hover:-translate-y-1 transition-all duration-300 border-slate-300/40">
                           <CardContent className="p-6">
-                            <h4 className="font-bold text-xl text-slate-900 drop-shadow-sm">{innovator.name}</h4>
+                            <h4 className="font-bold text-xl text-slate-900 drop-shadow-sm flex items-center justify-between">
+                              {innovator.name}
+                              {innovator.matchScore > 0 && (
+                                <span className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded-full">{innovator.matchScore}% Match</span>
+                              )}
+                            </h4>
                             <p className="text-sm font-medium text-emerald-600 mt-1 tracking-wider">★ {Number(innovator.rating || 5).toFixed(1)}</p>
                             {innovator.bio && <p className="text-sm text-slate-600 mt-3 line-clamp-2">{parseProfileMetadata(innovator.bio).bioText || parseProfileMetadata(innovator.bio).domain_interests}</p>}
                             <div className="mt-6 flex flex-col gap-2">
