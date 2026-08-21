@@ -62,33 +62,30 @@ export default function AuthPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isSigningIn, setIsSigningIn] = useState(false);
+  const [isSignUp, setIsSignUp] = useState(false);
 
   const handleEmailAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password) return;
     setIsSigningIn(true);
     
-    // First try to sign in
-    const { data, error: signInError } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (signInError) {
-      if (signInError.message.includes("Invalid login credentials")) {
-        // If credentials invalid, they might need to sign up
-        const { error: signUpError } = await supabase.auth.signUp({
-          email,
-          password,
-        });
-        
-        if (signUpError) {
-          alert("Error signing up: " + signUpError.message);
-        } else {
-          alert("Account created! If you have email confirmations enabled in Supabase, please check your email. Otherwise, you are logged in!");
-        }
+    if (isSignUp) {
+      const { error: signUpError } = await supabase.auth.signUp({
+        email,
+        password,
+      });
+      if (signUpError) {
+        alert("Error signing up: " + signUpError.message);
       } else {
-        alert("Error: " + signInError.message);
+        alert("Account created successfully! You are now logged in (or check your email for confirmation if required).");
+      }
+    } else {
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      if (signInError) {
+        alert("Error signing in: " + signInError.message);
       }
     }
     setIsSigningIn(false);
@@ -207,10 +204,20 @@ export default function AuthPage() {
                   <FontAwesomeIcon icon={faSpinner} className="animate-spin text-2xl" />
                 ) : (
                   <span className="relative z-10 flex items-center justify-center">
-                    Continue with Email
+                    {isSignUp ? "Create new account" : "Sign in with Email"}
                   </span>
                 )}
               </Button>
+              
+              <div className="text-center mt-2">
+                <button
+                  type="button"
+                  onClick={() => setIsSignUp(!isSignUp)}
+                  className="text-sm text-blue-600 hover:text-blue-700 font-medium transition-colors"
+                >
+                  {isSignUp ? "Already have an account? Sign in" : "New user? Create new account"}
+                </button>
+              </div>
             </form>
 
             <div className="relative my-6">
