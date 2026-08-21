@@ -202,7 +202,7 @@ export default function Dashboard() {
   };
 
   if (loading) return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+    <div className="min-h-screen relative font-sans flex items-center justify-center">
       <FontAwesomeIcon icon={faSpinner} className="animate-spin text-blue-500 text-4xl" />
     </div>
   );
@@ -210,7 +210,7 @@ export default function Dashboard() {
   const isLaborer = userProfile?.role === 'laborer';
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 font-sans relative">
+    <div className="min-h-screen relative font-sans">
       {/* Dynamic Background */}
       <div className="fixed top-0 left-0 w-full h-full overflow-hidden pointer-events-none -z-10">
         <div className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] bg-emerald-600/20 rounded-full blur-[120px] animate-blob" />
@@ -417,8 +417,8 @@ export default function Dashboard() {
                 )}
 
                 <div>
-                  <h3 className="text-2xl font-bold mt-12 mb-6 text-slate-800 flex items-center gap-3">
-                    <FontAwesomeIcon icon={faUsers} className="text-emerald-500" /> Matching Recommended Craftsmen
+                  <h3 className="text-2xl font-bold mt-12 mb-6 text-slate-100 flex items-center gap-3">
+                    <FontAwesomeIcon icon={faUsers} className="text-emerald-400" /> Matching Recommended Craftsmen
                   </h3>
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

@@ -81,19 +81,19 @@ export default function ProfilePage() {
   };
 
   if (loading) return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+    <div className="min-h-screen relative flex items-center justify-center">
       <FontAwesomeIcon icon={faSpinner} className="animate-spin text-blue-500 text-4xl" />
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 font-sans p-4 lg:p-12 relative overflow-hidden">
+    <div className="min-h-screen font-sans p-4 lg:p-12 relative overflow-hidden">
       {/* Background */}
       <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-blue-600/20 rounded-full blur-[120px] pointer-events-none animate-blob" />
       <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-emerald-600/20 rounded-full blur-[120px] pointer-events-none animate-blob animation-delay-4000" />
 
       <div className="max-w-3xl mx-auto space-y-8 relative z-10">
-        <Button variant="ghost" onClick={() => router.push("/dashboard")} className="text-slate-600 hover:text-blue-700 bg-white/30 backdrop-blur-sm border border-slate-200 rounded-xl px-5 transition-all hover:bg-slate-100 hover:-translate-x-1">
+        <Button variant="ghost" onClick={() => router.push("/dashboard")} className="text-slate-100 hover:text-white bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl px-5 transition-all hover:bg-white/20 hover:-translate-x-1">
           <FontAwesomeIcon icon={faArrowLeft} className="mr-3" /> Back to Dashboard
         </Button>
 
