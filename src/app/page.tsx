@@ -45,6 +45,8 @@ export default function AuthPage() {
     };
   }, []);
 
+  const [isReturning, setIsReturning] = useState(false);
+
   const checkUserProfile = async (userId: string) => {
     const { data, error } = await supabase
       .from("users")
@@ -52,11 +54,10 @@ export default function AuthPage() {
       .eq("id", userId)
       .single();
 
-    if (data && data.role) {
-      router.push("/dashboard");
-    } else {
-      setLoading(false);
+    if (data && data.name) {
+      setIsReturning(true);
     }
+    setLoading(false);
   };
 
   const [email, setEmail] = useState("");
@@ -247,6 +248,17 @@ export default function AuthPage() {
     );
   }
 
+  const handleRoleSelection = async (selectedRole: "student" | "laborer") => {
+    setRole(selectedRole);
+    if (isReturning) {
+      setIsProcessing(true);
+      await supabase.from("users").update({ role: selectedRole }).eq("id", user.id);
+      router.push("/dashboard");
+    } else {
+      setOnboardingStep(2);
+    }
+  };
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-slate-50 p-4 relative overflow-hidden font-sans">
        {/* Background */}
@@ -255,17 +267,19 @@ export default function AuthPage() {
       <Card className="w-full max-w-xl glass-panel-heavy text-slate-900 relative z-10 transition-all duration-500 overflow-hidden">
         <div className="h-1.5 w-full bg-gradient-to-r from-blue-500 via-emerald-400 to-indigo-500 animate-[shimmer_3s_infinite]" />
         <CardHeader className="text-center pt-8">
-          <CardTitle className="text-4xl font-extrabold text-glow">Complete Your Profile</CardTitle>
+          <CardTitle className="text-4xl font-extrabold text-glow">
+            {isReturning ? "Welcome Back!" : "Complete Your Profile"}
+          </CardTitle>
           <CardDescription className="text-slate-600 text-md mt-2">
-            {onboardingStep === 1 ? "How will you use Hand2Tech?" : "Show us your skills"}
+            {isReturning ? "Which role are you logging in as today?" : (onboardingStep === 1 ? "How will you use Hand2Tech?" : "Show us your skills")}
           </CardDescription>
         </CardHeader>
         <CardContent className="pb-8">
-          {onboardingStep === 1 && (
+          {onboardingStep === 1 && !isProcessing && (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-4">
               <button
                 type="button"
-                onClick={() => { setRole("student"); setOnboardingStep(2); }}
+                onClick={() => handleRoleSelection("student")}
                 className="flex flex-col items-center justify-center gap-4 p-8 rounded-2xl border border-slate-300/50 bg-white/40 hover:bg-slate-100/60 hover:border-blue-500/80 transition-all group shadow-lg hover:shadow-[0_0_20px_rgba(59,130,246,0.3)] hover:-translate-y-1"
               >
                 <div className="w-20 h-20 rounded-full bg-blue-500/10 flex items-center justify-center group-hover:scale-110 group-hover:bg-blue-500/20 transition-all shadow-[inset_0_0_20px_rgba(59,130,246,0.1)]">
@@ -279,7 +293,7 @@ export default function AuthPage() {
               
               <button
                 type="button"
-                onClick={() => { setRole("laborer"); setOnboardingStep(2); }}
+                onClick={() => handleRoleSelection("laborer")}
                 className="flex flex-col items-center justify-center gap-4 p-8 rounded-2xl border border-slate-300/50 bg-white/40 hover:bg-slate-100/60 hover:border-emerald-500/80 transition-all group shadow-lg hover:shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:-translate-y-1"
               >
                 <div className="w-20 h-20 rounded-full bg-emerald-500/10 flex items-center justify-center group-hover:scale-110 group-hover:bg-emerald-500/20 transition-all shadow-[inset_0_0_20px_rgba(16,185,129,0.1)]">
@@ -290,6 +304,13 @@ export default function AuthPage() {
                   <p className="text-sm text-slate-600 mt-2">I build, weld, fabricate, or do physical labor.</p>
                 </div>
               </button>
+            </div>
+          )}
+
+          {onboardingStep === 1 && isProcessing && (
+            <div className="flex flex-col items-center justify-center py-12 space-y-4 animate-in fade-in zoom-in duration-300">
+              <FontAwesomeIcon icon={faSpinner} className="animate-spin text-5xl text-blue-500 drop-shadow-[0_0_15px_rgba(59,130,246,0.5)]" />
+              <h3 className="text-xl font-bold text-slate-700 animate-pulse">Switching Role...</h3>
             </div>
           )}
 
