@@ -60,14 +60,28 @@ export default function Dashboard() {
 
   const [selectedProject, setSelectedProject] = useState<any>(null);
 
-  const fetchMatchesForProject = async (project: any, profileLoc: string) => {
+  async function fetchMatchesForProject(project: any, profileLoc: string) {
     try {
-      const { data: matches, error } = await supabase.rpc("find_matching_innovators", { 
+      let { data: matches, error } = await supabase.rpc("find_matching_innovators", { 
         req_skills: project.required_skills || [],
-        req_location: project.location || profileLoc || "Earth" // fallback if null
+        req_location: project.location || profileLoc || "Earth"
       });
       if (error) console.error("Matches RPC Error:", error);
-      setRecommendedInnovators((matches || []).filter((m: any) => m.id !== user?.id));
+      
+      let finalMatches = (matches || []).filter((m: any) => m.id !== user?.id);
+      
+      // Fallback: If no exact matches found, just grab some top-rated laborers so the page isn't empty
+      if (finalMatches.length === 0) {
+        const { data: backup } = await supabase.from("users")
+          .select("*")
+          .eq("role", "Laborer")
+          .neq("id", user?.id)
+          .order("rating", { ascending: false })
+          .limit(6);
+        finalMatches = backup || [];
+      }
+      
+      setRecommendedInnovators(finalMatches);
     } catch (e) {
       console.error("fetchMatches failed", e);
     }
@@ -223,7 +237,7 @@ export default function Dashboard() {
                 ) : (
                   pendingRequests.map(req => (
                     <DropdownMenuItem key={req.id} className="p-4 flex flex-col items-start gap-3 focus:bg-slate-100/80 rounded-lg cursor-default">
-                      <div className="text-sm"><span className="font-bold text-blue-400">{req.requester.name}</span> wants to connect on <span className="font-semibold text-emerald-400">{req.project.title}</span></div>
+                      <div className="text-sm"><span className="font-bold text-blue-400">{req.requester?.name || "Unknown User"}</span> wants to connect on <span className="font-semibold text-emerald-400">{req.project?.title || "Unknown Project"}</span></div>
                       <div className="flex gap-3 w-full mt-1">
                         <Button size="sm" onClick={(e) => { e.stopPropagation(); handleAccept(req.id); }} className="flex-1 bg-emerald-600/90 hover:bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.2)]"><FontAwesomeIcon icon={faCheck}/></Button>
                         <Button size="sm" variant="destructive" onClick={(e) => { e.stopPropagation(); handleReject(req.id); }} className="flex-1 shadow-[0_0_15px_rgba(239,68,68,0.2)]"><FontAwesomeIcon icon={faTimes}/></Button>
@@ -313,15 +327,14 @@ export default function Dashboard() {
                     {projects.map(project => (
                       <Card 
                         key={project.id} 
-                        onClick={() => { setSelectedProject(project); fetchMatchesForProject(project, userProfile?.location); }}
-                        className="glass-panel cursor-pointer hover:border-blue-500 hover:shadow-2xl transition-all hover:-translate-y-1"
+                        className="glass-panel cursor-pointer hover:border-blue-500 hover:shadow-2xl transition-all hover:-translate-y-1 overflow-hidden"
                       >
-                        <CardContent className="p-6">
+                        <div onClick={() => { setSelectedProject(project); fetchMatchesForProject(project, userProfile?.location); }} className="w-full h-full p-6">
                           <h4 className="font-bold text-xl text-blue-600 mb-2 line-clamp-1">{project.title}</h4>
                           <span className="text-xs px-2 py-1 rounded-md bg-slate-200 text-slate-700 uppercase">{project.status}</span>
                           <p className="text-sm text-slate-600 mt-4 line-clamp-2">{project.description}</p>
                           <div className="mt-6 flex justify-end text-sm font-bold text-blue-500">View Details & Matches →</div>
-                        </CardContent>
+                        </div>
                       </Card>
                     ))}
                   </div>
@@ -391,7 +404,7 @@ export default function Dashboard() {
                           <div>
                             <span className="font-bold text-slate-800 flex items-center gap-2">
                               <FontAwesomeIcon icon={faUserCircle} className="text-slate-400 text-xl" /> 
-                              {conn.requester_id === user.id ? conn.owner.name : conn.requester.name}
+                              {conn.requester_id === user?.id ? conn.owner?.name || "Unknown User" : conn.requester?.name || "Unknown User"}
                             </span>
                           </div>
                           <Button onClick={() => setActiveChatConnection(conn)} className="bg-emerald-600 rounded-xl px-6">

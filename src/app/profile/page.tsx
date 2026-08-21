@@ -35,7 +35,7 @@ export default function ProfilePage() {
     });
   }, []);
 
-  const loadProfile = async (userId: string) => {
+  async function loadProfile(userId: string) {
     const { data: profile } = await supabase.from("users").select("*").eq("id", userId).single();
     if (profile) {
       setUser(profile);

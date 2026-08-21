@@ -21,6 +21,21 @@ export default function AuthPage() {
   const [isProcessing, setIsProcessing] = useState(false);
   const router = useRouter();
 
+  const [isReturning, setIsReturning] = useState(false);
+
+  async function checkUserProfile(userId: string) {
+    const { data, error } = await supabase
+      .from("users")
+      .select("*")
+      .eq("id", userId)
+      .single();
+
+    if (data) {
+      setIsReturning(true);
+    }
+    setLoading(false);
+  }
+
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
@@ -31,34 +46,17 @@ export default function AuthPage() {
       }
     });
 
-    const { data: authListener } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        setUser(session?.user ?? null);
-        if (session?.user) {
-          checkUserProfile(session.user.id);
-        }
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+      if (session?.user) {
+        checkUserProfile(session.user.id);
       }
-    );
+    });
 
-    return () => {
-      authListener.subscription.unsubscribe();
-    };
+    return () => subscription.unsubscribe();
   }, []);
-
-  const [isReturning, setIsReturning] = useState(false);
-
-  const checkUserProfile = async (userId: string) => {
-    const { data, error } = await supabase
-      .from("users")
-      .select("*")
-      .eq("id", userId)
-      .single();
-
-    if (data && data.name) {
-      setIsReturning(true);
-    }
-    setLoading(false);
-  };
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
